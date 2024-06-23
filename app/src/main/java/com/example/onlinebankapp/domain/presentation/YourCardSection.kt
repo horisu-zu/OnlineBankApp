@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -20,9 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.onlinebankapp.R
-import com.example.onlinebankapp.data.CardType
-import com.example.onlinebankapp.data.CurrencyType
-import com.example.onlinebankapp.data.PaymentCardData
+import com.example.onlinebankapp.domain.card.CardType
+import com.example.onlinebankapp.domain.card.CurrencyType
+import com.example.onlinebankapp.domain.card.PaymentCardData
 
 
 @Composable
@@ -56,6 +55,7 @@ fun YourCardsButton(
             containerColor = Color.LightGray,
             contentColor = Color.Black
         ),
+        elevation = ButtonDefaults.elevatedButtonElevation(4.dp),
         modifier = modifier
     ) {
         Text(

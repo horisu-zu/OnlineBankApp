@@ -30,7 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyAppBar(
-    //viewModel: ExchangeViewModel,
+    viewModel: ExchangeViewModel,
     onMenuClicked: () -> Unit
 ) {
     Column(
@@ -44,12 +44,11 @@ fun MyAppBar(
                 titleContentColor = Color.Black
             ),
             title = {
-                /*ExchangeRateCard(
+                ExchangeRateCard(
                     firstCurrency = "USD",
                     secondCurrency = "EUR",
-                    toCurrency = "UAH",
                     viewModel = viewModel
-                )*/
+                )
             },
             navigationIcon = {
                 IconButton(onClick = onMenuClicked) {

@@ -1,6 +1,5 @@
 package com.example.onlinebankapp.domain.presentation
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -34,8 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.R
-import com.example.onlinebankapp.data.CardType
-import com.example.onlinebankapp.data.PaymentCardData
+import com.example.onlinebankapp.domain.card.CardType
+import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState

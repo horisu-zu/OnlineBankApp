@@ -1,20 +1,17 @@
 package com.example.onlinebankapp.domain.presentation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -22,8 +19,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -31,15 +28,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.luminance
-import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.R
-import com.example.onlinebankapp.data.OperationCardData
-import com.example.onlinebankapp.data.PaymentCardData
+import com.example.onlinebankapp.domain.operation.OperationCardData
 
 @Composable
 fun OperationList(
@@ -55,7 +50,7 @@ fun OperationList(
             OperationType(operationCardData = operation)
         }
         item {
-            AddCard()
+            AddCard(onClick = {})
         }
     }
 }
@@ -71,13 +66,16 @@ fun OperationType(
         modifier = modifier
     ) {
         OperationCard(
-            operationCardData = operationCardData
+            operationCardData = operationCardData,
+            onClick = {
+
+            }
         )
         Text(
             text = operationCardData.operationName,
             color = Color.Black,
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
             textAlign = TextAlign.Center
         )
     }
@@ -86,6 +84,7 @@ fun OperationType(
 @Composable
 fun OperationCard(
     operationCardData: OperationCardData,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val gradient = Brush.linearGradient(
@@ -95,9 +94,11 @@ fun OperationCard(
     )
 
     Card(
-        modifier = modifier.padding(12.dp),
-        shape = CircleShape,
-        elevation = CardDefaults.elevatedCardElevation(6.dp)
+        modifier = modifier
+            .padding(12.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        elevation = CardDefaults.elevatedCardElevation(8.dp)
     ) {
         Box(
             modifier = Modifier
@@ -116,6 +117,7 @@ fun OperationCard(
 
 @Composable
 fun AddCard(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -129,16 +131,19 @@ fun AddCard(
                     val strokeWidth = 2.dp.toPx()
                     val dashWidth = 15f
                     val gapWidth = 10f
-                    val pathEffect = PathEffect.dashPathEffect(floatArrayOf(dashWidth, gapWidth),
-                        0f)
+                    val pathEffect = PathEffect.dashPathEffect(
+                        floatArrayOf(dashWidth, gapWidth),
+                        0f
+                    )
                     drawRoundRect(
                         color = Color.LightGray,
                         size = size,
                         style = Stroke(width = strokeWidth, pathEffect = pathEffect),
                         cornerRadius = CornerRadius(size.width / 2, size.height / 2)
                     )
-                },
-            shape = CircleShape
+                }
+                .clip(CircleShape)
+                .clickable(onClick = onClick)
         ) {
             Box(
                 modifier = Modifier
@@ -160,8 +165,8 @@ fun AddCard(
         Text(
             text = "Add",
             color = Color.Black,
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
             textAlign = TextAlign.Center
         )
     }
@@ -199,7 +204,7 @@ fun getOperationTypeData(): List<OperationCardData> {
 
 fun getTint(backgroundColor: Color): Color {
     return if (backgroundColor.luminance() > 0.5) {
-        Color.Gray
+        Color.LightGray
     } else {
         Color.White
     }

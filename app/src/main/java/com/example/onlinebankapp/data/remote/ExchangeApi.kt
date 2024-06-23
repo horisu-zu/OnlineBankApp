@@ -7,9 +7,8 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface ExchangeApi {
-    @GET("v6/${Defaults.API_KEY}/pair/{fromCurrency}/{toCurrency}")
+    @GET("v6/${Defaults.API_KEY}/pair/{fromCurrency}/UAH")
     suspend fun getExchangeData(
-        @Path("fromCurrency") fromCurrency: String,
-        @Path("toCurrency") toCurrency: String,
+        @Path("fromCurrency") fromCurrency: String
     ): Response<ExchangeData>
 }

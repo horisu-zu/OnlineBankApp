@@ -1,4 +1,4 @@
-package com.example.onlinebankapp.data
+package com.example.onlinebankapp.domain.operation
 
 import android.graphics.drawable.Icon
 import androidx.compose.ui.graphics.Color

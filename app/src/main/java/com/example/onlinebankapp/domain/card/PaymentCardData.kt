@@ -1,4 +1,4 @@
-package com.example.onlinebankapp.data
+package com.example.onlinebankapp.domain.card
 
 import androidx.compose.ui.graphics.Color
 
