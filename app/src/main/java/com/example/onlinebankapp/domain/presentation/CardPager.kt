@@ -50,10 +50,11 @@ fun PaymentCardPager(
     HorizontalPager(
         count = items.size + 1,
         state = pagerState,
-        contentPadding = PaddingValues(horizontal = 36.dp),
+        contentPadding = PaddingValues(horizontal = 30.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(240.dp)
+            .height(220.dp),
+        itemSpacing = 8.dp
     ) { page ->
         if (page < items.size) {
             PaymentCard(paymentCardData = items[page], isSelected = page == selectedIndex)
@@ -86,7 +87,7 @@ fun PaymentCard(
 
     Card(
         modifier = modifier
-            .padding(12.dp, 8.dp)
+            //.padding(12.dp, 8.dp)
             .scale(cardSize),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.elevatedCardElevation(6.dp),
@@ -117,11 +118,13 @@ fun PaymentCard(
                 Text(
                     text = hideCardNumber(paymentCardData.cardNumber),
                     color = textColor,
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
                 )
                 Text(
                     text = "${paymentCardData.expiryMonth}/${paymentCardData.expiryYear}",
                     color = textColor,
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
                 )
             }
@@ -142,7 +145,7 @@ fun PaymentCard(
                     painter = painterResource(id = getCardLogo(paymentCardData.cardType)),
                     contentDescription = paymentCardData.cardType.toString(),
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(60.dp)
                 )
             }
         }

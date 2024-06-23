@@ -24,19 +24,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.onlinebankapp.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyAppBar(
+fun AppBar(
     viewModel: ExchangeViewModel,
-    onMenuClicked: () -> Unit
+    onMenuClicked: () -> Unit = {},
+    onNotificationClicked: () -> Unit = {},
+    onCommunicationClicked: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 36.dp)
+            .padding(horizontal = 18.dp)
     ) {
         CenterAlignedTopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
@@ -44,17 +48,33 @@ fun MyAppBar(
                 titleContentColor = Color.Black
             ),
             title = {
-                ExchangeRateCard(
+                /*ExchangeRateCard(
                     firstCurrency = "USD",
                     secondCurrency = "EUR",
                     viewModel = viewModel
-                )
+                )*/
             },
             navigationIcon = {
                 IconButton(onClick = onMenuClicked) {
                     Icon(
                         imageVector = Icons.Filled.Menu,
                         contentDescription = "Menu",
+                        tint = Color.Black
+                    )
+                }
+            },
+            actions = {
+                IconButton(onClick = onNotificationClicked) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_notification),
+                        contentDescription = "Notification Icon",
+                        tint = Color.Black
+                    )
+                }
+                IconButton(onClick = onCommunicationClicked) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_communication),
+                        contentDescription = "Communication Icon",
                         tint = Color.Black
                     )
                 }

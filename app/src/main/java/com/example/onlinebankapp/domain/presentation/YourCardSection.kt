@@ -23,7 +23,6 @@ import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.CurrencyType
 import com.example.onlinebankapp.domain.card.PaymentCardData
 
-
 @Composable
 fun YourCardSection(
 ) {
@@ -31,14 +30,13 @@ fun YourCardSection(
         modifier = Modifier
             .background(Color.Transparent)
             .fillMaxWidth()
-            .padding(top = 16.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            YourCardsButton(Modifier.padding(start = 48.dp))
+            YourCardsButton(Modifier.padding(start = 24.dp))
             PaymentCardPager(items = getCardData())
         }
     }
@@ -55,8 +53,9 @@ fun YourCardsButton(
             containerColor = Color.LightGray,
             contentColor = Color.Black
         ),
-        elevation = ButtonDefaults.elevatedButtonElevation(4.dp),
         modifier = modifier
+            .padding(horizontal = 12.dp),
+        elevation = ButtonDefaults.elevatedButtonElevation(4.dp)
     ) {
         Text(
             text = "Your Cards",
@@ -76,7 +75,7 @@ fun getCardData(): List<PaymentCardData> {
     return listOf(
         PaymentCardData(
             cardName = "Visa Classic",
-            cardNumber = "1234 5678 9101 1121",
+            cardNumber = "4149 5678 9101 1121",
             expiryMonth = "12",
             expiryYear = "24",
             cvv = "123",
@@ -87,7 +86,7 @@ fun getCardData(): List<PaymentCardData> {
         ),
         PaymentCardData(
             cardName = "MasterCard Gold",
-            cardNumber = "1111 2222 3333 4444",
+            cardNumber = "5168 2222 3333 4444",
             expiryMonth = "06",
             expiryYear = "25",
             cvv = "456",
@@ -98,10 +97,10 @@ fun getCardData(): List<PaymentCardData> {
         ),
         PaymentCardData(
             cardName = "American Express Black",
-            cardNumber = "1111 2222 3333 4444",
+            cardNumber = "3742 2222 3333 4444",
             expiryMonth = "09",
             expiryYear = "26",
-            cvv = "456",
+            cvv = "4567",
             currentBalance = 1232.12f,
             currency = CurrencyType.USD,
             cardType = CardType.AMEX,

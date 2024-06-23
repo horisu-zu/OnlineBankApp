@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -43,7 +44,7 @@ fun OperationList(
     LazyVerticalGrid(
         columns = GridCells.Fixed(4),
         modifier = Modifier
-            .padding(horizontal = 36.dp)
+            .padding(horizontal = 24.dp)
             .fillMaxWidth()
     ) {
         items(operations) { operation ->
@@ -67,9 +68,7 @@ fun OperationType(
     ) {
         OperationCard(
             operationCardData = operationCardData,
-            onClick = {
-
-            }
+            onClick = {}
         )
         Text(
             text = operationCardData.operationName,
@@ -96,9 +95,9 @@ fun OperationCard(
     Card(
         modifier = modifier
             .padding(12.dp)
+            .shadow(8.dp, CircleShape, clip = true)
             .clip(CircleShape)
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.elevatedCardElevation(8.dp)
+            .clickable(onClick = onClick)
     ) {
         Box(
             modifier = Modifier
@@ -128,7 +127,7 @@ fun AddCard(
         Card(
             modifier = Modifier
                 .drawBehind {
-                    val strokeWidth = 2.dp.toPx()
+                    val strokeWidth = 4.dp.toPx()
                     val dashWidth = 15f
                     val gapWidth = 10f
                     val pathEffect = PathEffect.dashPathEffect(
@@ -181,7 +180,7 @@ fun getOperationTypeData(): List<OperationCardData> {
         ),
         OperationCardData(
             operationName = "Market",
-            operationColor = Color.Green,
+            operationColor = Color.Yellow,
             operationIcon = R.drawable.ic_market
         ),
         OperationCardData(
@@ -191,7 +190,7 @@ fun getOperationTypeData(): List<OperationCardData> {
         ),
         OperationCardData(
             operationName = "Transfer",
-            operationColor = Color.Yellow,
+            operationColor = Color.Green,
             operationIcon = R.drawable.ic_transfer
         ),
         OperationCardData(
@@ -204,7 +203,7 @@ fun getOperationTypeData(): List<OperationCardData> {
 
 fun getTint(backgroundColor: Color): Color {
     return if (backgroundColor.luminance() > 0.5) {
-        Color.LightGray
+        Color.Black
     } else {
         Color.White
     }
