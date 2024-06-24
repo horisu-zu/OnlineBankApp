@@ -1,2 +1,2 @@
-Jetpack Compose Online Banking App. 
-I'll start working on MVVM and backend part of it later, now just adding UI...
+Jetpack Compose Online Banking App.
+MVVM (Currency Exchange API used) - Clean Architecture (i suppose?) - Jetpack Compose - Live Data
