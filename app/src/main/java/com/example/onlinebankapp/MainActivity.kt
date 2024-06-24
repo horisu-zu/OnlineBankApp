@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -22,8 +21,8 @@ import com.example.onlinebankapp.domain.presentation.AppBar
 import com.example.onlinebankapp.domain.presentation.BottomNavItem
 import com.example.onlinebankapp.domain.presentation.BottomNavigationMenu
 import com.example.onlinebankapp.domain.presentation.ExchangeViewModel
-import com.example.onlinebankapp.domain.presentation.OperationList
-import com.example.onlinebankapp.domain.presentation.YourCardSection
+import com.example.onlinebankapp.domain.presentation.cardsection.OperationList
+import com.example.onlinebankapp.domain.presentation.cardsection.YourCardSection
 import com.example.onlinebankapp.domain.presentation.viewModelFactory
 import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 import com.example.onlinebankapp.ui.theme.SlightlyGrey

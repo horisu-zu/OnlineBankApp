@@ -48,11 +48,11 @@ fun AppBar(
                 titleContentColor = Color.Black
             ),
             title = {
-                /*ExchangeRateCard(
+                ExchangeRateCard(
                     firstCurrency = "USD",
                     secondCurrency = "EUR",
                     viewModel = viewModel
-                )*/
+                )
             },
             navigationIcon = {
                 IconButton(onClick = onMenuClicked) {

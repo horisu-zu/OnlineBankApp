@@ -1,4 +1,4 @@
-package com.example.onlinebankapp.domain.presentation
+package com.example.onlinebankapp.domain.presentation.cardsection
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
