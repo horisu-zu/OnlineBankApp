@@ -121,6 +121,28 @@ fun getCardData(): List<PaymentCardData> {
             currency = CurrencyType.USD,
             cardType = CardType.AMEX,
             cardColor = Color.Black
+        ),
+        PaymentCardData(
+            cardName = "Discover It",
+            cardNumber = "6011 1111 2222 3333",
+            expiryMonth = "03",
+            expiryYear = "27",
+            cvv = "789",
+            currentBalance = 3500.75f,
+            currency = CurrencyType.USD,
+            cardType = CardType.DISCOVER,
+            cardColor = Color(0xFFFFA500)
+        ),
+        PaymentCardData(
+            cardName = "UnionPay Platinum",
+            cardNumber = "6234 5678 9012 3456",
+            expiryMonth = "11",
+            expiryYear = "28",
+            cvv = "987",
+            currentBalance = 20000.50f,
+            currency = CurrencyType.CNY,
+            cardType = CardType.OTHER,
+            cardColor = Color(0xFFFF4500)
         )
     )
 }

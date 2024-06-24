@@ -10,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -17,75 +18,94 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.onlinebankapp.domain.navigation.NavigationItemList
 import com.example.onlinebankapp.domain.presentation.AppBar
 import com.example.onlinebankapp.domain.presentation.BottomNavItem
 import com.example.onlinebankapp.domain.presentation.BottomNavigationMenu
 import com.example.onlinebankapp.domain.presentation.ExchangeViewModel
+import com.example.onlinebankapp.domain.presentation.MainNavigationDrawer
 import com.example.onlinebankapp.domain.presentation.cardsection.OperationList
 import com.example.onlinebankapp.domain.presentation.cardsection.YourCardSection
 import com.example.onlinebankapp.domain.presentation.viewModelFactory
 import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             OnlineBankAppTheme {
                 val navController = rememberNavController()
+                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+                val scope = rememberCoroutineScope()
 
-                Scaffold(
-                    bottomBar = { BottomNavigationMenu(navController) }
-                ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = BottomNavItem.Home.route,
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        composable(
-                            route = BottomNavItem.Home.route,
-                            enterTransition = getEnterTransition(
-                                BottomNavItem.Home.route,
-                                BottomNavItem.History.route,
-                                BottomNavItem.Services.route
-                            ),
-                            exitTransition = getExitTransition(
-                                BottomNavItem.Home.route,
-                                BottomNavItem.History.route,
-                                BottomNavItem.Services.route
-                            )
+                ModalNavigationDrawer(
+                    drawerContent = {
+                        MainNavigationDrawer(
+                            data = NavigationItemList(),
+                            drawerState = drawerState,
+                            scope = scope
+                        )
+                    },
+                    drawerState = drawerState
+                ) {
+                    Scaffold(
+                        bottomBar = { BottomNavigationMenu(navController) }
+                    ) { innerPadding ->
+                        NavHost(
+                            navController = navController,
+                            startDestination = BottomNavItem.Home.route,
+                            modifier = Modifier.padding(innerPadding)
                         ) {
-                            HomeScreen()
-                        }
-                        composable(
-                            route = BottomNavItem.Services.route,
-                            enterTransition = getEnterTransition(
-                                BottomNavItem.Services.route,
-                                BottomNavItem.Home.route,
-                                BottomNavItem.History.route
-                            ),
-                            exitTransition = getExitTransition(
-                                BottomNavItem.Services.route,
-                                BottomNavItem.Home.route,
-                                BottomNavItem.History.route
-                            )
-                        ) {
-                            HistoryScreen()
-                        }
-                        composable(
-                            route = BottomNavItem.History.route,
-                            enterTransition = getEnterTransition(
-                                BottomNavItem.History.route,
-                                BottomNavItem.Services.route,
-                                BottomNavItem.Home.route
-                            ),
-                            exitTransition = getExitTransition(
-                                BottomNavItem.History.route,
-                                BottomNavItem.Services.route,
-                                BottomNavItem.Home.route
-                            )
-                        ) {
-                            ServicesScreen()
+                            composable(
+                                route = BottomNavItem.Home.route,
+                                enterTransition = getEnterTransition(
+                                    BottomNavItem.Home.route,
+                                    BottomNavItem.History.route,
+                                    BottomNavItem.Services.route
+                                ),
+                                exitTransition = getExitTransition(
+                                    BottomNavItem.Home.route,
+                                    BottomNavItem.History.route,
+                                    BottomNavItem.Services.route
+                                )
+                            ) {
+                                HomeScreen {
+                                    scope.launch { drawerState.open() }
+                                }
+                            }
+                            composable(
+                                route = BottomNavItem.Services.route,
+                                enterTransition = getEnterTransition(
+                                    BottomNavItem.Services.route,
+                                    BottomNavItem.Home.route,
+                                    BottomNavItem.History.route
+                                ),
+                                exitTransition = getExitTransition(
+                                    BottomNavItem.Services.route,
+                                    BottomNavItem.Home.route,
+                                    BottomNavItem.History.route
+                                )
+                            ) {
+                                HistoryScreen()
+                            }
+                            composable(
+                                route = BottomNavItem.History.route,
+                                enterTransition = getEnterTransition(
+                                    BottomNavItem.History.route,
+                                    BottomNavItem.Services.route,
+                                    BottomNavItem.Home.route
+                                ),
+                                exitTransition = getExitTransition(
+                                    BottomNavItem.History.route,
+                                    BottomNavItem.Services.route,
+                                    BottomNavItem.Home.route
+                                )
+                            ) {
+                                ServicesScreen()
+                            }
                         }
                     }
                 }
@@ -95,7 +115,9 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onMenuClicked : () -> Unit
+) {
     val viewModel = viewModel<ExchangeViewModel>(
         factory = viewModelFactory {
             ExchangeViewModel(OnlineBankApp.appModule.exchangeRepository)
@@ -109,7 +131,7 @@ fun HomeScreen() {
                 .background(SlightlyGrey),
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
-            AppBar(viewModel) {}
+            AppBar(viewModel, onMenuClicked = onMenuClicked) {}
             YourCardSection()
             OperationList()
         }
