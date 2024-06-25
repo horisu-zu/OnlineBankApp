@@ -6,6 +6,7 @@ import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import com.example.onlinebankapp.di.AppModule
 import com.example.onlinebankapp.di.AppModuleImpl
+import com.google.firebase.FirebaseApp
 import dagger.hilt.android.HiltAndroidApp
 
 class OnlineBankApp: Application() {
@@ -16,6 +17,7 @@ class OnlineBankApp: Application() {
     override fun onCreate() {
         super.onCreate()
 
+        FirebaseApp.initializeApp(this)
         appModule = AppModuleImpl(this)
     }
 }

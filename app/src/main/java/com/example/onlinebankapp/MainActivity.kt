@@ -1,6 +1,7 @@
 package com.example.onlinebankapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContentTransitionScope
@@ -18,6 +19,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.onlinebankapp.domain.presentation.auth.AuthNavigator
 import com.example.onlinebankapp.domain.navigation.NavigationItemList
 import com.example.onlinebankapp.domain.operation.operationDataList
 import com.example.onlinebankapp.domain.presentation.AppBar
@@ -32,6 +34,7 @@ import com.example.onlinebankapp.domain.presentation.viewModelFactory
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -40,77 +43,99 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             OnlineBankAppTheme {
-                val navController = rememberNavController()
-                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-                val scope = rememberCoroutineScope()
+                MainContent()
+            }
+        }
+    }
+}
 
-                ModalNavigationDrawer(
-                    drawerContent = {
-                        MainNavigationDrawer(
-                            data = NavigationItemList(),
-                            drawerState = drawerState,
-                            scope = scope
-                        )
-                    },
-                    drawerState = drawerState
+@Composable
+fun MainContent() {
+    val navController = rememberNavController()
+    val auth = FirebaseAuth.getInstance()
+    Log.e("AUTH", auth.currentUser?.email.toString())
+    val startDestination = if (auth.currentUser != null) "main" else "auth"
+
+    NavHost(navController, startDestination = startDestination) {
+        composable("auth") {
+            AuthNavigator(navController)
+        }
+        composable("main") {
+            MainAppNavigator()
+        }
+    }
+}
+
+@Composable
+fun MainAppNavigator() {
+    val navController = rememberNavController()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerContent = {
+            MainNavigationDrawer(
+                data = NavigationItemList(),
+                drawerState = drawerState,
+                scope = scope
+            )
+        },
+        drawerState = drawerState
+    ) {
+        Scaffold(
+            bottomBar = { BottomNavigationMenu(navController) }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = BottomNavItem.Home.route,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable(
+                    route = BottomNavItem.Home.route,
+                    enterTransition = getEnterTransition(
+                        BottomNavItem.Home.route,
+                        BottomNavItem.History.route,
+                        BottomNavItem.Services.route
+                    ),
+                    exitTransition = getExitTransition(
+                        BottomNavItem.Home.route,
+                        BottomNavItem.History.route,
+                        BottomNavItem.Services.route
+                    )
                 ) {
-                    Scaffold(
-                        bottomBar = { BottomNavigationMenu(navController) }
-                    ) { innerPadding ->
-                        NavHost(
-                            navController = navController,
-                            startDestination = BottomNavItem.Home.route,
-                            modifier = Modifier.padding(innerPadding)
-                        ) {
-                            composable(
-                                route = BottomNavItem.Home.route,
-                                enterTransition = getEnterTransition(
-                                    BottomNavItem.Home.route,
-                                    BottomNavItem.History.route,
-                                    BottomNavItem.Services.route
-                                ),
-                                exitTransition = getExitTransition(
-                                    BottomNavItem.Home.route,
-                                    BottomNavItem.History.route,
-                                    BottomNavItem.Services.route
-                                )
-                            ) {
-                                HomeScreen {
-                                    scope.launch { drawerState.open() }
-                                }
-                            }
-                            composable(
-                                route = BottomNavItem.Services.route,
-                                enterTransition = getEnterTransition(
-                                    BottomNavItem.Services.route,
-                                    BottomNavItem.Home.route,
-                                    BottomNavItem.History.route
-                                ),
-                                exitTransition = getExitTransition(
-                                    BottomNavItem.Services.route,
-                                    BottomNavItem.Home.route,
-                                    BottomNavItem.History.route
-                                )
-                            ) {
-                                ServicesScreen()
-                            }
-                            composable(
-                                route = BottomNavItem.History.route,
-                                enterTransition = getEnterTransition(
-                                    BottomNavItem.History.route,
-                                    BottomNavItem.Services.route,
-                                    BottomNavItem.Home.route
-                                ),
-                                exitTransition = getExitTransition(
-                                    BottomNavItem.History.route,
-                                    BottomNavItem.Services.route,
-                                    BottomNavItem.Home.route
-                                )
-                            ) {
-                                HistoryScreen()
-                            }
-                        }
+                    HomeScreen {
+                        scope.launch { drawerState.open() }
                     }
+                }
+                composable(
+                    route = BottomNavItem.Services.route,
+                    enterTransition = getEnterTransition(
+                        BottomNavItem.Services.route,
+                        BottomNavItem.Home.route,
+                        BottomNavItem.History.route
+                    ),
+                    exitTransition = getExitTransition(
+                        BottomNavItem.Services.route,
+                        BottomNavItem.Home.route,
+                        BottomNavItem.History.route
+                    )
+                ) {
+                    ServicesScreen()
+                }
+                composable(
+                    route = BottomNavItem.History.route,
+                    enterTransition = getEnterTransition(
+                        BottomNavItem.History.route,
+                        BottomNavItem.Services.route,
+                        BottomNavItem.Home.route
+                    ),
+                    exitTransition = getExitTransition(
+                        BottomNavItem.History.route,
+                        BottomNavItem.Services.route,
+                        BottomNavItem.Home.route
+                    )
+                ) {
+                    HistoryScreen()
                 }
             }
         }

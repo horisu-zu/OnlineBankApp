@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "10553271581",
+    "project_id": "onlinebankapp-fb332",
+    "storage_bucket": "onlinebankapp-fb332.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:10553271581:android:0350fcb9a9db8d21eb2df4",
+        "android_client_info": {
+          "package_name": "com.example.onlinebankapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUNn-jVcHOUJyYEE0nI_rsAX5dNrk1wSA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
