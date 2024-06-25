@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.navigation.NavigationItem
+import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -78,7 +79,7 @@ private fun NavigationItemsCard(
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+        colors = CardDefaults.cardColors(containerColor = AnotherGray)
     ) {
         Column {
             data.forEachIndexed { index, item ->
@@ -114,7 +115,7 @@ private fun NavigationItem(
         },
         modifier = Modifier.fillMaxWidth(),
         colors = NavigationDrawerItemDefaults.colors(
-            selectedContainerColor = Color.Gray,
+            selectedContainerColor = Color.LightGray,
             unselectedContainerColor = Color.Transparent
         )
     )
@@ -127,7 +128,7 @@ private fun LogoutCard(onLogout: () -> Unit) {
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.LightGray)
+        colors = CardDefaults.cardColors(containerColor = AnotherGray)
     ) {
         NavigationDrawerItem(
             label = { Text("Logout", fontSize = 14.sp, color = Color.Red) },

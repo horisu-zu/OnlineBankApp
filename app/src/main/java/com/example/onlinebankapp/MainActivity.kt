@@ -19,6 +19,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.onlinebankapp.domain.navigation.NavigationItemList
+import com.example.onlinebankapp.domain.operation.operationDataList
 import com.example.onlinebankapp.domain.presentation.AppBar
 import com.example.onlinebankapp.domain.presentation.BottomNavItem
 import com.example.onlinebankapp.domain.presentation.BottomNavigationMenu
@@ -26,7 +27,9 @@ import com.example.onlinebankapp.domain.presentation.ExchangeViewModel
 import com.example.onlinebankapp.domain.presentation.MainNavigationDrawer
 import com.example.onlinebankapp.domain.presentation.cardsection.OperationList
 import com.example.onlinebankapp.domain.presentation.cardsection.YourCardSection
+import com.example.onlinebankapp.domain.presentation.history.HistoryComponent
 import com.example.onlinebankapp.domain.presentation.viewModelFactory
+import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.launch
@@ -89,7 +92,7 @@ class MainActivity : ComponentActivity() {
                                     BottomNavItem.History.route
                                 )
                             ) {
-                                HistoryScreen()
+                                ServicesScreen()
                             }
                             composable(
                                 route = BottomNavItem.History.route,
@@ -104,7 +107,7 @@ class MainActivity : ComponentActivity() {
                                     BottomNavItem.Home.route
                                 )
                             ) {
-                                ServicesScreen()
+                                HistoryScreen()
                             }
                         }
                     }
@@ -143,8 +146,10 @@ fun HistoryScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(SlightlyGrey)
-    ) {}
+            .background(AnotherGray)
+    ) {
+        HistoryComponent(operationItems = operationDataList())
+    }
 }
 
 @Composable
