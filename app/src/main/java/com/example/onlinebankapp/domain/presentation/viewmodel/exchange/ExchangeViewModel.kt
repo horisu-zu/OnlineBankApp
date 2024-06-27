@@ -1,4 +1,4 @@
-package com.example.onlinebankapp.domain.presentation
+package com.example.onlinebankapp.domain.presentation.viewmodel.exchange
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf

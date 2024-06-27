@@ -20,6 +20,8 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -33,8 +35,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.navigation.NavigationItem
+import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
+import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +50,9 @@ import kotlinx.coroutines.launch
 fun MainNavigationDrawer(
     data: List<NavigationItem>,
     drawerState: DrawerState,
-    scope: CoroutineScope
+    scope: CoroutineScope,
+    viewModel: UserViewModel,
+    parentNavController: NavController
 ) {
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
 
@@ -64,8 +72,32 @@ fun MainNavigationDrawer(
             scope.launch { drawerState.close() }
         }
 
-        LogoutCard { scope.launch { drawerState.close() } }
+        LogoutCard {
+            viewModel.logout()
+            scope.launch {
+                drawerState.close()
+                parentNavController.navigate("auth") {
+                    popUpTo("main") { inclusive = true }
+                }
+            }
+        }
     }
+
+    /*LaunchedEffect(logoutState) {
+        when (logoutState) {
+            is Resource.Success -> {
+                rootNavController.navigate("auth") {
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                }
+            }
+            is Resource.Error -> {
+            }
+            is Resource.Loading -> {
+            }
+        }
+    }*/
 }
 
 @Composable

@@ -29,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,17 +44,28 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.onlinebankapp.R
+import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
+import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 
 @Composable
-fun SignUpScreen(navController: NavController, parentNavController: NavController) {
+fun SignUpScreen(
+    navController: NavController,
+    parentNavController: NavController,
+    viewModel: UserViewModel
+) {
     var email by remember { mutableStateOf("") }
+    var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     var showToast by remember { mutableStateOf(false) }
+
+    val registrationState by viewModel.registrationState.collectAsState()
+    var attemptedRegister by remember { mutableStateOf(false) }
 
     Box( modifier = Modifier.fillMaxSize()) {
         Column(
@@ -113,6 +126,21 @@ fun SignUpScreen(navController: NavController, parentNavController: NavControlle
                     )
 
                     OutlinedTextField(
+                        value = userName,
+                        onValueChange = { userName = it },
+                        label = { Text("Username", color = Color.DarkGray) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.LightGray,
+                            unfocusedBorderColor = Color.Gray,
+                            focusedTextColor = Color.DarkGray,
+                            unfocusedTextColor = Color.DarkGray
+                        )
+                    )
+
+                    OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
                         label = { Text("Password", color = Color.DarkGray) },
@@ -151,13 +179,8 @@ fun SignUpScreen(navController: NavController, parentNavController: NavControlle
 
                     Button(
                         onClick = {
-                            signUpWith(email, password) { success, error ->
-                                if (success) {
-                                    parentNavController.navigate("main")
-                                } else {
-                                    errorMessage = error ?: "Unknown Error"
-                                }
-                            }
+                            attemptedRegister = true
+                            viewModel.registerUser(email, password, userName)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -192,17 +215,40 @@ fun SignUpScreen(navController: NavController, parentNavController: NavControlle
                 onDismiss = { showToast = false })
         }
     }
+
+    LaunchedEffect(registrationState) {
+        if (attemptedRegister) {
+            when (registrationState) {
+                is Resource.Success -> {
+                    parentNavController.navigate("main") {
+                        popUpTo("auth") { inclusive = true }
+                    }
+                }
+                is Resource.Error -> {
+                    errorMessage = (registrationState as Resource.Error).message ?: "Unknown error"
+                    showToast = true
+                }
+                is Resource.Loading -> {
+                }
+            }
+        }
+    }
 }
 
-fun signUpWith(email: String, password: String,
-                               onResult: (Boolean, String?) -> Unit) {
+fun signUpWith(email: String, password: String, onResult: (Boolean, String?, String?) -> Unit) {
+    if (email.isBlank() || password.isBlank()) {
+        onResult(false, null, "Email and (or) password cannot be empty")
+        return
+    }
+
     val auth = FirebaseAuth.getInstance()
     auth.createUserWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                onResult(true, null)
+                val user = auth.currentUser?.uid
+                onResult(true, user, null)
             } else {
-                onResult(false, task.exception?.message)
+                onResult(false, null, task.exception?.message ?: "Registration failed")
             }
         }
 }

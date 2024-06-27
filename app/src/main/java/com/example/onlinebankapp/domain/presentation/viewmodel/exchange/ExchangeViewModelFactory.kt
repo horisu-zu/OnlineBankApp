@@ -1,8 +1,7 @@
-package com.example.onlinebankapp.domain.presentation
+package com.example.onlinebankapp.domain.presentation.viewmodel.exchange
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.ViewModelInitializer
 
 fun <VM: ViewModel> viewModelFactory(initializer: () -> VM): ViewModelProvider.Factory {
     return object : ViewModelProvider.Factory {

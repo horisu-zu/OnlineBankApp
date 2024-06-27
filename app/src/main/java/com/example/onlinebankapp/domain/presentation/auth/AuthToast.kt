@@ -33,7 +33,7 @@ fun AuthToast(message: String, isVisible: Boolean, onDismiss: () -> Unit) {
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomCenter
+            contentAlignment = Alignment.TopCenter
         ) {
             Card(
                 modifier = Modifier

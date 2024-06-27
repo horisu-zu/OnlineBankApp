@@ -16,25 +16,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.onlinebankapp.data.repository.UserRepositoryImpl
 import com.example.onlinebankapp.domain.presentation.auth.AuthNavigator
 import com.example.onlinebankapp.domain.navigation.NavigationItemList
 import com.example.onlinebankapp.domain.operation.operationDataList
 import com.example.onlinebankapp.domain.presentation.AppBar
 import com.example.onlinebankapp.domain.presentation.BottomNavItem
 import com.example.onlinebankapp.domain.presentation.BottomNavigationMenu
-import com.example.onlinebankapp.domain.presentation.ExchangeViewModel
+import com.example.onlinebankapp.domain.presentation.viewmodel.exchange.ExchangeViewModel
 import com.example.onlinebankapp.domain.presentation.MainNavigationDrawer
 import com.example.onlinebankapp.domain.presentation.cardsection.OperationList
 import com.example.onlinebankapp.domain.presentation.cardsection.YourCardSection
 import com.example.onlinebankapp.domain.presentation.history.HistoryComponent
-import com.example.onlinebankapp.domain.presentation.viewModelFactory
+import com.example.onlinebankapp.domain.presentation.viewmodel.exchange.viewModelFactory
+import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
+import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModelFactory
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -43,14 +48,20 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             OnlineBankAppTheme {
-                MainContent()
+                val fireStore = FirebaseFirestore.getInstance()
+                val userRepository = UserRepositoryImpl(fireStore)
+                val userViewModel: UserViewModel = viewModel(
+                    factory = UserViewModelFactory(userRepository)
+                )
+
+                MainContent(userViewModel)
             }
         }
     }
 }
 
 @Composable
-fun MainContent() {
+fun MainContent(viewModel: UserViewModel) {
     val navController = rememberNavController()
     val auth = FirebaseAuth.getInstance()
     Log.e("AUTH", auth.currentUser?.email.toString())
@@ -61,13 +72,13 @@ fun MainContent() {
             AuthNavigator(navController)
         }
         composable("main") {
-            MainAppNavigator()
+            MainAppNavigator(viewModel, navController)
         }
     }
 }
 
 @Composable
-fun MainAppNavigator() {
+fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavController) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -77,7 +88,9 @@ fun MainAppNavigator() {
             MainNavigationDrawer(
                 data = NavigationItemList(),
                 drawerState = drawerState,
-                scope = scope
+                scope = scope,
+                viewModel,
+                parentNavController
             )
         },
         drawerState = drawerState
