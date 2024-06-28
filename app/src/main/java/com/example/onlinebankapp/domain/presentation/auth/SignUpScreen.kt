@@ -39,9 +39,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
@@ -114,6 +116,10 @@ fun SignUpScreen(
                                 tint = Color.Gray
                             )
                         },
+                        textStyle = TextStyle(
+                            fontSize = 14.sp,
+                            color = Color.DarkGray
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
@@ -129,6 +135,10 @@ fun SignUpScreen(
                         value = userName,
                         onValueChange = { userName = it },
                         label = { Text("Username", color = Color.DarkGray) },
+                        textStyle = TextStyle(
+                            fontSize = 14.sp,
+                            color = Color.DarkGray
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 16.dp),
@@ -166,6 +176,10 @@ fun SignUpScreen(
                         },
                         visualTransformation = if (passwordVisibility)
                             VisualTransformation.None else PasswordVisualTransformation(),
+                        textStyle = TextStyle(
+                            fontSize = 14.sp,
+                            color = Color.DarkGray
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = 18.dp),

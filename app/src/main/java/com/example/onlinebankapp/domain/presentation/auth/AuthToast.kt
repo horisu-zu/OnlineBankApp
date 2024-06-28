@@ -1,6 +1,7 @@
 package com.example.onlinebankapp.domain.presentation.auth
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -28,8 +29,16 @@ import androidx.compose.ui.unit.dp
 fun AuthToast(message: String, isVisible: Boolean, onDismiss: () -> Unit) {
     AnimatedVisibility(
         visible = isVisible,
-        enter = fadeIn() + slideInVertically(),
-        exit = fadeOut() + slideOutVertically()
+        enter = fadeIn(animationSpec = tween(600)) +
+                slideInVertically(
+                    animationSpec = tween(600),
+                    initialOffsetY = { fullHeight -> -fullHeight }
+                ),
+        exit = fadeOut(animationSpec = tween(600)) +
+                slideOutVertically(
+                    animationSpec = tween(600),
+                    targetOffsetY = { fullHeight -> -fullHeight }
+                )
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),

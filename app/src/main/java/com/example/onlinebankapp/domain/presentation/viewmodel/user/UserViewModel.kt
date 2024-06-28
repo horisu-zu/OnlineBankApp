@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.presentation.viewmodel.user
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.onlinebankapp.domain.presentation.auth.signUpWith
@@ -15,21 +16,46 @@ import java.util.Date
 
 class UserViewModel(private val repository: UserRepository) : ViewModel() {
 
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val _userState = MutableStateFlow<Resource<UserData>>(Resource.Loading())
     val userState: StateFlow<Resource<UserData>> = _userState
 
     private val _updateState = MutableStateFlow<Resource<Void?>>(Resource.Success(null))
-    val updateState: StateFlow<Resource<Void?>> = _updateState
+    //val updateState: StateFlow<Resource<Void?>> = _updateState
 
     private val _registrationState = MutableStateFlow<Resource<UserData>>(Resource.Success(null))
     val registrationState: StateFlow<Resource<UserData>> = _registrationState
 
     private val _logoutState = MutableStateFlow<Resource<Unit>>(Resource.Success(Unit))
-    val logoutState: StateFlow<Resource<Unit>> = _logoutState
+    //val logoutState: StateFlow<Resource<Unit>> = _logoutState
+
+    fun getCurrentUser() {
+        viewModelScope.launch {
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                Log.d("UserViewModel", "Current user found: ${currentUser.uid}")
+                getUser(currentUser.uid)
+            } else {
+                Log.d("UserViewModel", "No user signed in")
+                _userState.value = Resource.Error("No user is signed in")
+            }
+        }
+    }
 
     fun getUser(userId: String) {
         viewModelScope.launch {
+            Log.d("UserViewModel", "Fetching user data for: $userId")
             repository.getUser(userId).collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        val userData = result.data
+                        if (userData != null) {
+                            Log.d("UserViewModel", "User data loaded successfully: " +
+                                    "userId=${userData.userId}")
+                        }
+                    }
+                    else -> Log.d("UserViewModel", "User data result: $result")
+                }
                 _userState.value = result
             }
         }

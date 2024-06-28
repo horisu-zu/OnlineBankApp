@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.presentation
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -56,16 +58,40 @@ fun MainNavigationDrawer(
 ) {
     var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
 
+    val userState by viewModel.userState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.getCurrentUser()
+    }
+
     ModalDrawerSheet(
         modifier = Modifier.fillMaxWidth(0.7f),
         drawerContainerColor = SlightlyGrey,
         drawerShape = RoundedCornerShape(topEnd = 18.dp, bottomEnd = 18.dp)
     ) {
-        UserInfoSection(
-            avatarResId = R.drawable.ic_person,
-            userName = "UserName",
-            phoneNumber = "+380679761684"
-        )
+        when (val state = userState) {
+            is Resource.Loading -> {
+                //CircularProgressIndicator()
+            }
+            is Resource.Success -> {
+                val userData = state.data
+                if (userData != null) {
+                    Log.d("MainNavigationDrawer",
+                        "Calling UserInfoSection with: userName=${userData.userName}, " +
+                                "phoneNumber=${userData.phoneNumber}")
+                    UserInfoSection(
+                        avatarResId = R.drawable.ic_person,
+                        userName = userData.userName,
+                        phoneNumber = userData.phoneNumber ?: "No phone number"
+                    )
+                } else {
+                    Log.d("MainNavigationDrawer", "UserData is null")
+                }
+            }
+            is Resource.Error -> {
+                state.message?.let { Log.e("Error", it) }
+            }
+        }
 
         NavigationItemsCard(data, selectedItemIndex) { index ->
             selectedItemIndex = index
@@ -109,7 +135,7 @@ private fun NavigationItemsCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 4.dp),
         shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = AnotherGray)
     ) {
@@ -158,7 +184,7 @@ private fun LogoutCard(onLogout: () -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 4.dp),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(containerColor = AnotherGray)
     ) {
@@ -188,6 +214,9 @@ fun UserInfoSection(
     phoneNumber: String,
     modifier: Modifier = Modifier
 ) {
+    Log.d("UserInfoSection", "Composing with: userName=$userName, " +
+            "phoneNumber=$phoneNumber")
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -203,18 +232,17 @@ fun UserInfoSection(
                 .clip(CircleShape),
             contentScale = ContentScale.Crop
         )
-
         Column(
-            modifier = Modifier.padding(vertical = 4.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = userName,
+                text = userName.takeIf { it.isNotBlank() } ?: "No name",
                 fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
+                fontSize = 16.sp
             )
             Text(
-                text = phoneNumber,
+                text = phoneNumber.takeIf { it.isNotBlank() } ?: "...",
                 fontSize = 14.sp
             )
         }

@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.presentation.history
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,17 +18,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.operation.OperationItemData
+import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryComponent(
     operationItems: List<OperationItemData>
@@ -36,7 +40,7 @@ fun HistoryComponent(
 
     LazyColumn {
         groupedOperations.forEach { (date, operations) ->
-            item {
+            stickyHeader {
                 DateHeader(date)
             }
             itemsIndexed(operations) { index, operation ->
@@ -48,6 +52,7 @@ fun HistoryComponent(
                         modifier = Modifier
                             .background(SlightlyGrey)
                             .padding(start = 80.dp, end = 18.dp)
+                            .alpha(0.5f)
                     )
                 }
             }
@@ -57,13 +62,19 @@ fun HistoryComponent(
 
 @Composable
 fun DateHeader(date: String) {
-    Text(
-        text = date,
-        fontSize = 18.sp,
-        color = Color.Black,
-        fontWeight = FontWeight.SemiBold,
-        modifier = Modifier.padding(16.dp)
-    )
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AnotherGray)
+    ) {
+        Text(
+            text = date,
+            fontSize = 18.sp,
+            color = Color.Black,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
 }
 
 @Composable
