@@ -2,6 +2,7 @@ package com.example.onlinebankapp.domain.presentation.cardsection.carditem
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -49,6 +54,9 @@ fun CardHeader(
 
     val textColor = getTextColorForBackground(paymentCardData.cardColor)
 
+    var isCvvVisible by remember { mutableStateOf(false) }
+    var isCardNumberVisible by remember { mutableStateOf(false) }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -57,7 +65,7 @@ fun CardHeader(
             .padding(horizontal = 36.dp, vertical = 24.dp)
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = paymentCardData.cardName,
@@ -71,10 +79,12 @@ fun CardHeader(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = hideCardNumber(paymentCardData.cardNumber),
+                    text = if (isCardNumberVisible) paymentCardData.cardNumber
+                        else hideCardNumber(paymentCardData.cardNumber),
                     color = textColor,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp
+                    fontSize = 16.sp,
+                    modifier = Modifier.clickable { isCardNumberVisible = !isCardNumberVisible }
                 )
                 Image(
                     painter = painterResource(id = getCardLogo(paymentCardData.cardType)),
@@ -94,10 +104,11 @@ fun CardHeader(
                     fontSize = 15.sp
                 )
                 Text(
-                    text = "***",
+                    text = if (isCvvVisible) paymentCardData.cvv else "***",
                     color = textColor,
                     fontWeight = FontWeight.SemiBold,
-                    fontSize = 15.sp
+                    fontSize = 15.sp,
+                    modifier = Modifier.clickable { isCvvVisible = !isCvvVisible }
                 )
             }
             Row(

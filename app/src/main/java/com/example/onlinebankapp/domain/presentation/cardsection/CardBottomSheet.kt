@@ -1,7 +1,10 @@
 package com.example.onlinebankapp.domain.presentation.cardsection
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,10 +34,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
+import com.example.onlinebankapp.CardInfoActivity
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.launch
@@ -67,18 +73,25 @@ fun CardBottomSheet(
 
 @Composable
 fun PaymentCardList(cards: List<PaymentCardData>) {
+    val context = LocalContext.current
+
     LazyColumn(
         modifier = Modifier
             .padding(bottom = 36.dp)
     ) {
         items(cards) { card ->
-            PaymentCardItem(cardData = card)
+            PaymentCardItem(cardData = card, onCardClick = { cardId ->
+                val intent = Intent(context, CardInfoActivity::class.java).apply {
+                    putExtra("cardId", cardId)
+                }
+                context.startActivity(intent)
+            })
         }
     }
 }
 
 @Composable
-fun PaymentCardItem(cardData: PaymentCardData) {
+fun PaymentCardItem(cardData: PaymentCardData, onCardClick: (String) -> Unit) {
     val gradient = Brush.linearGradient(
         colors = listOf(cardData.cardColor, Color.White),
         start = androidx.compose.ui.geometry.Offset(0f, 0f),
@@ -94,9 +107,10 @@ fun PaymentCardItem(cardData: PaymentCardData) {
     ) {
         Card(
             modifier = Modifier
-                .size(width = 96.dp, height = 56.dp),
+                .size(width = 96.dp, height = 56.dp)
+                .clickable { onCardClick(cardData.cardName) },
             shape = RoundedCornerShape(8.dp),
-            elevation = CardDefaults.elevatedCardElevation(2.dp)
+            elevation = CardDefaults.elevatedCardElevation(2.dp),
         ) {
             Box(
                 modifier = Modifier

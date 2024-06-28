@@ -27,7 +27,9 @@ import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.operation.OperationItemData
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
+import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -153,17 +155,49 @@ fun formatTime(date: Date): String {
 }
 
 fun formatDate(date: Date): String {
-    val dayOfWeekFormat = SimpleDateFormat("EE", Locale("ru"))
-    val dayOfMonthFormat = SimpleDateFormat("d", Locale("ru"))
-    val monthFormat = SimpleDateFormat("MMMM", Locale("ru"))
+    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+    val dateYear = Calendar.getInstance().apply { time = date }.get(Calendar.YEAR)
+
+    val dayOfWeekFormat = SimpleDateFormat("EE", Locale.getDefault())
+    val dayMonthFormat = SimpleDateFormat("d MMMM", Locale.getDefault())
+    val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
 
     val dayOfWeek = dayOfWeekFormat.format(date).take(2).capitalize(Locale.ROOT)
-    val dayOfMonth = dayOfMonthFormat.format(date)
-    val month = monthFormat.format(date)
+    val dayMonth = dayMonthFormat.format(date)
 
-    return "$dayOfWeek, $dayOfMonth $month"
+    return if (dateYear == currentYear) {
+        "$dayOfWeek, $dayMonth"
+    } else {
+        val year = yearFormat.format(date)
+        "$dayOfWeek, $dayMonth $year"
+    }
 }
 
 fun groupOperationsByDate(operations: List<OperationItemData>): Map<String, List<OperationItemData>> {
-    return operations.groupBy { formatDate(it.operationDate) }
+    return operations
+        .sortedByDescending { it.operationDate }
+        .groupBy { formatDate(it.operationDate) }
+        .toSortedMap(compareByDescending { parseDate(it) })
 }
+
+fun parseDate(formattedDate: String): Date {
+    val formatter = SimpleDateFormat("EE, d MMMM yyyy", Locale.getDefault())
+    val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
+    return try {
+        formatter.parse(formattedDate)
+    } catch (e: ParseException) {
+        formatter.parse("$formattedDate $currentYear")
+    } ?: throw IllegalArgumentException("Unable to parse date: $formattedDate")
+}
+
+/*
+fun getMonthNumber(monthName: String): Int {
+    val monthFormat = SimpleDateFormat("MMMM", Locale.getDefault())
+    for (i in 0..11) {
+        if (monthFormat.format(Date(2020, i, 1)) == monthName) {
+            return i
+        }
+    }
+    throw IllegalArgumentException("Unknown Month: $monthName")
+}*/
