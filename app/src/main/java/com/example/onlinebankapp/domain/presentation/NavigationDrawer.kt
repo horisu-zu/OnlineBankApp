@@ -136,7 +136,7 @@ private fun NavigationItemsCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = AnotherGray)
     ) {
         Column {
@@ -172,6 +172,7 @@ private fun NavigationItem(
             }
         },
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
         colors = NavigationDrawerItemDefaults.colors(
             selectedContainerColor = Color.LightGray,
             unselectedContainerColor = Color.Transparent
@@ -185,7 +186,7 @@ private fun LogoutCard(onLogout: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = AnotherGray)
     ) {
         NavigationDrawerItem(
@@ -200,6 +201,7 @@ private fun LogoutCard(onLogout: () -> Unit) {
             },
             onClick = onLogout,
             modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
             colors = NavigationDrawerItemDefaults.colors(
                 unselectedContainerColor = Color.Transparent
             )

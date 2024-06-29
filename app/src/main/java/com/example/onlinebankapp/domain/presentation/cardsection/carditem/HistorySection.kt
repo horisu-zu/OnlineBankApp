@@ -22,7 +22,7 @@ fun HistorySection(
     Column(modifier = modifier) {
         Text(
             text = "Operation History",
-            fontSize = 20.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(16.dp)
         )
@@ -33,7 +33,7 @@ fun HistorySection(
                 modifier = Modifier.padding(16.dp)
             )
         } else {
-            HistoryComponent(operationItems = cardOperations)
+            CardHistoryComponent(operationItemsData = cardOperations)
         }
     }
 }

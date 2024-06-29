@@ -1,14 +1,19 @@
 package com.example.onlinebankapp.domain.presentation.cardsection.carditem
 
+import android.app.Activity
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CardType
@@ -27,17 +32,15 @@ fun CardItemInfo(
     operations: List<OperationItemData>,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(SlightlyGrey)
+    CardAppBar(
+        paymentCardData = paymentCardData
     ) {
-        CardHeader(
-            paymentCardData = paymentCardData
-        )
         HistorySection(
             cardId = paymentCardData.cardName,
-            operations = operations
+            operations = operations,
+            modifier = modifier
+                .fillMaxSize()
+                .background(SlightlyGrey)
         )
     }
 }

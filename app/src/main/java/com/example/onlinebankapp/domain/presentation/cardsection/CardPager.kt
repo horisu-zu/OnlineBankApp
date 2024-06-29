@@ -1,10 +1,12 @@
 package com.example.onlinebankapp.domain.presentation.cardsection
 
+import android.content.Intent
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,10 +30,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.onlinebankapp.CardInfoActivity
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.PaymentCardData
@@ -44,6 +48,7 @@ import com.google.accompanist.pager.rememberPagerState
 fun PaymentCardPager(
     items: List<PaymentCardData>
 ) {
+    val context = LocalContext.current
     val pagerState = rememberPagerState()
     val selectedIndex = pagerState.currentPage
 
@@ -57,7 +62,14 @@ fun PaymentCardPager(
         itemSpacing = 8.dp
     ) { page ->
         if (page < items.size) {
-            PaymentCard(paymentCardData = items[page], isSelected = page == selectedIndex)
+            PaymentCard(paymentCardData = items[page],
+                isSelected = page == selectedIndex,
+                onCardClick = { cardId ->
+                    val intent = Intent(context, CardInfoActivity::class.java).apply {
+                        putExtra("cardId", cardId)
+                    }
+                    context.startActivity(intent)
+                })
         } else {
             AddNewCard(isSelected = page == selectedIndex)
         }
@@ -68,7 +80,8 @@ fun PaymentCardPager(
 fun PaymentCard(
     isSelected: Boolean,
     paymentCardData: PaymentCardData,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onCardClick: (String) -> Unit
 ) {
     val gradient = Brush.linearGradient(
         colors = listOf(paymentCardData.cardColor, Color.White),
@@ -88,7 +101,8 @@ fun PaymentCard(
     Card(
         modifier = modifier
             //.padding(12.dp, 8.dp)
-            .scale(cardSize),
+            .scale(cardSize)
+            .clickable { onCardClick(paymentCardData.cardName) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.elevatedCardElevation(6.dp),
         /*colors = CardDefaults.cardColors(

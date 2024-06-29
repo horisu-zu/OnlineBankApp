@@ -26,6 +26,83 @@ fun operationDataList(): List<OperationItemData> {
     return listOf(
         OperationItemData(
             operationType = "Deposit",
+            operationDate = calendar.apply { set(2024, Calendar.JUNE, 1,
+                10, 15) }.time,
+            cardId = getCardData().get(0).cardName,
+            operationIcon = R.drawable.ic_deposit,
+            iconColor = Color.Green,
+            operationAmount = 100.0,
+            operationCurrency = CurrencyType.USD,
+            isReceived = true
+        ),
+        OperationItemData(
+            operationType = "Payment",
+            operationDate = calendar.apply { set(2024, Calendar.MAY, 28,
+                9, 30) }.time,
+            cardId = getCardData().get(0).cardName,
+            operationIcon = R.drawable.ic_payment,
+            iconColor = Color.Magenta,
+            operationAmount = 45.0,
+            operationCurrency = CurrencyType.USD,
+            isReceived = false
+        ),
+        OperationItemData(
+            operationType = "Transfer",
+            operationDate = calendar.apply { set(2024, Calendar.MAY, 20,
+                14, 45) }.time,
+            cardId = getCardData().get(0).cardName,
+            operationIcon = R.drawable.ic_transfer,
+            iconColor = Color.Blue,
+            operationAmount = 150.0,
+            operationCurrency = CurrencyType.USD,
+            isReceived = true
+        ),
+        OperationItemData(
+            operationType = "Withdrawal",
+            operationDate = calendar.apply { set(2024, Calendar.MAY, 15,
+                11, 20) }.time,
+            cardId = getCardData().get(0).cardName,
+            operationIcon = R.drawable.ic_withdrawal,
+            iconColor = Color.Red,
+            operationAmount = 80.0,
+            operationCurrency = CurrencyType.USD,
+            isReceived = false
+        ),
+        OperationItemData(
+            operationType = "Deposit",
+            operationDate = calendar.apply { set(2024, Calendar.MAY, 10,
+                16, 0) }.time,
+            cardId = getCardData().get(0).cardName,
+            operationIcon = R.drawable.ic_deposit,
+            iconColor = Color.Green,
+            operationAmount = 200.0,
+            operationCurrency = CurrencyType.USD,
+            isReceived = true
+        ),
+        OperationItemData(
+            operationType = "Payment",
+            operationDate = calendar.apply { set(2024, Calendar.MAY,
+                5, 13, 25) }.time,
+            cardId = getCardData().get(0).cardName,
+            operationIcon = R.drawable.ic_payment,
+            iconColor = Color.Magenta,
+            operationAmount = 65.0,
+            operationCurrency = CurrencyType.USD,
+            isReceived = false
+        ),
+        OperationItemData(
+            operationType = "Transfer",
+            operationDate = calendar.apply { set(2024, Calendar.APRIL,
+                30, 10, 50) }.time,
+            cardId = getCardData().get(0).cardName,
+            operationIcon = R.drawable.ic_transfer,
+            iconColor = Color.Blue,
+            operationAmount = 120.0,
+            operationCurrency = CurrencyType.USD,
+            isReceived = true
+        ),
+        OperationItemData(
+            operationType = "Deposit",
             operationDate = calendar.apply {
                 set(2024, Calendar.JUNE, 1, 10, 15)
             }.time,

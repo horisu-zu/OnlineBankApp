@@ -12,4 +12,6 @@ val Pink40 = Color(0xFF7D5260)
 
 val SlightlyGrey = Color(0xFFF5F5F5)
 val AnotherGray = Color(0xFFE4E4E4)
+val ToastGreen = Color(0xFF43912B)
+
 val Purple = Color(0xFF7B26BB)
