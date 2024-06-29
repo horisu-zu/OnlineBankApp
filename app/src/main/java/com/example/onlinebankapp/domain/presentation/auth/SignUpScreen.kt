@@ -63,11 +63,9 @@ fun SignUpScreen(
     var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
     var showToast by remember { mutableStateOf(false) }
 
-    val registrationState by viewModel.registrationState.collectAsState()
-    var attemptedRegister by remember { mutableStateOf(false) }
+    val authState by viewModel.authState.collectAsState()
 
     Box( modifier = Modifier.fillMaxSize()) {
         Column(
@@ -105,96 +103,36 @@ fun SignUpScreen(
 
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    OutlinedTextField(
+                    TextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Email", color = Color.DarkGray) },
+                        label = "Email",
                         leadingIcon = {
                             Icon(
                                 Icons.Default.Email,
                                 contentDescription = "Email",
                                 tint = Color.Gray
                             )
-                        },
-                        textStyle = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color.DarkGray
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.LightGray,
-                            unfocusedBorderColor = Color.Gray,
-                            focusedTextColor = Color.DarkGray,
-                            unfocusedTextColor = Color.DarkGray
-                        )
+                        }
                     )
 
-                    OutlinedTextField(
+                    TextField(
                         value = userName,
                         onValueChange = { userName = it },
-                        label = { Text("Username", color = Color.DarkGray) },
-                        textStyle = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color.DarkGray
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.LightGray,
-                            unfocusedBorderColor = Color.Gray,
-                            focusedTextColor = Color.DarkGray,
-                            unfocusedTextColor = Color.DarkGray
-                        )
+                        label = "Username"
                     )
 
-                    OutlinedTextField(
+                    PasswordTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password", color = Color.DarkGray) },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Lock,
-                                contentDescription = "Password",
-                                tint = Color.Gray
-                            )
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                                Image(
-                                    painter = if (passwordVisibility)
-                                        painterResource(id = R.drawable.visible) else
-                                        painterResource(id = R.drawable.hidden),
-                                    modifier = Modifier
-                                        .size(24.dp),
-                                    contentDescription = if (passwordVisibility)
-                                        "Hide password" else "Show password"
-                                )
-                            }
-                        },
-                        visualTransformation = if (passwordVisibility)
-                            VisualTransformation.None else PasswordVisualTransformation(),
-                        textStyle = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color.DarkGray
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 18.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.LightGray,
-                            unfocusedBorderColor = Color.Gray,
-                            focusedTextColor = Color.DarkGray,
-                            unfocusedTextColor = Color.DarkGray
-                        )
+                        passwordVisibility = passwordVisibility,
+                        onPasswordVisibilityChange = { passwordVisibility = !passwordVisibility }
                     )
 
                     Button(
                         onClick = {
-                            attemptedRegister = true
-                            viewModel.registerUser(email, password, userName)
+                            viewModel.authenticateUser(email, password, userName,
+                                isRegistration = true)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -222,47 +160,104 @@ fun SignUpScreen(
                 Text("Already have an account? Login")
             }
         }
-
-        if (errorMessage.isNotEmpty()) {
-            AuthToast(message = errorMessage,
-                isVisible = showToast,
-                onDismiss = { showToast = false })
-        }
     }
 
-    LaunchedEffect(registrationState) {
-        if (attemptedRegister) {
-            when (registrationState) {
-                is Resource.Success -> {
-                    parentNavController.navigate("main") {
-                        popUpTo("auth") { inclusive = true }
-                    }
+    when (val state = authState) {
+        is Resource.Loading -> {
+        }
+
+        is Resource.Success -> {
+            LaunchedEffect(state) {
+                parentNavController.navigate("main") {
+                    popUpTo("auth") { inclusive = true }
                 }
-                is Resource.Error -> {
-                    errorMessage = (registrationState as Resource.Error).message ?: "Unknown error"
-                    showToast = true
-                }
-                is Resource.Loading -> {
-                }
+            }
+        }
+
+        is Resource.Error -> {
+            LaunchedEffect(state) {
+                showToast = true
+            }
+            if (showToast) {
+                AuthToast(
+                    message = state.message ?: "Unknown error",
+                    isVisible = showToast,
+                    onDismiss = { showToast = false }
+                )
             }
         }
     }
 }
 
-fun signUpWith(email: String, password: String, onResult: (Boolean, String?, String?) -> Unit) {
-    if (email.isBlank() || password.isBlank()) {
-        onResult(false, null, "Email and (or) password cannot be empty")
-        return
-    }
+@Composable
+fun TextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    leadingIcon: @Composable (() -> Unit)? = null
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label, color = Color.DarkGray) },
+        leadingIcon = leadingIcon,
+        textStyle = TextStyle(fontSize = 14.sp, color = Color.DarkGray),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.LightGray,
+            unfocusedBorderColor = Color.Gray,
+            focusedTextColor = Color.DarkGray,
+            unfocusedTextColor = Color.DarkGray
+        )
+    )
+}
 
-    val auth = FirebaseAuth.getInstance()
-    auth.createUserWithEmailAndPassword(email, password)
-        .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val user = auth.currentUser?.uid
-                onResult(true, user, null)
-            } else {
-                onResult(false, null, task.exception?.message ?: "Registration failed")
+@Composable
+fun PasswordTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    passwordVisibility: Boolean,
+    onPasswordVisibilityChange: () -> Unit
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text("Password", color = Color.DarkGray) },
+        leadingIcon = {
+            Icon(
+                Icons.Default.Lock,
+                contentDescription = "Password",
+                tint = Color.Gray
+            )
+        },
+        trailingIcon = {
+            IconButton(onClick = onPasswordVisibilityChange) {
+                Image(
+                    painter = if (passwordVisibility)
+                        painterResource(id = R.drawable.visible)
+                    else
+                        painterResource(id = R.drawable.hidden),
+                    modifier = Modifier.size(24.dp),
+                    contentDescription = if (passwordVisibility)
+                        "Hide password" else "Show password"
+                )
             }
-        }
+        },
+        visualTransformation = if (passwordVisibility)
+            VisualTransformation.None
+        else
+            PasswordVisualTransformation(),
+        textStyle = TextStyle(fontSize = 14.sp, color = Color.DarkGray),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 18.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = Color.LightGray,
+            unfocusedBorderColor = Color.Gray,
+            focusedTextColor = Color.DarkGray,
+            unfocusedTextColor = Color.DarkGray
+        )
+    )
 }

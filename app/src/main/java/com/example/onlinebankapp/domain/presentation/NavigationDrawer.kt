@@ -82,7 +82,7 @@ fun MainNavigationDrawer(
                     UserInfoSection(
                         avatarResId = R.drawable.ic_person,
                         userName = userData.userName,
-                        phoneNumber = userData.phoneNumber ?: "No phone number"
+                        phoneNumber = userData.phoneNumber ?: "..."
                     )
                 } else {
                     Log.d("MainNavigationDrawer", "UserData is null")

@@ -27,6 +27,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +48,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
+import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import com.google.firebase.auth.FirebaseAuth
@@ -60,8 +63,9 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
     var showToast by remember { mutableStateOf(false) }
+
+    val authState by viewModel.authState.collectAsState()
 
     Box( modifier = Modifier
         .fillMaxSize()) {
@@ -100,90 +104,22 @@ fun LoginScreen(
 
                     Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    OutlinedTextField(
+                    TextField(
                         value = email,
                         onValueChange = { email = it },
-                        label = { Text("Email", color = Color.DarkGray) },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Email,
-                                contentDescription = "Email",
-                                tint = Color.Gray
-                            )
-                        },
-                        textStyle = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color.DarkGray
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.LightGray,
-                            unfocusedBorderColor = Color.Gray,
-                            focusedTextColor = Color.DarkGray,
-                            unfocusedTextColor = Color.DarkGray
-                        )
+                        label = "Email"
                     )
 
-                    OutlinedTextField(
+                    PasswordTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password", color = Color.DarkGray) },
-                        leadingIcon = {
-                            Icon(
-                                Icons.Default.Lock,
-                                contentDescription = "Password",
-                                tint = Color.Gray
-                            )
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                                Image(
-                                    painter = if (passwordVisibility)
-                                        painterResource(id = R.drawable.visible) else
-                                        painterResource(id = R.drawable.hidden),
-                                    modifier = Modifier
-                                        .size(24.dp),
-                                    contentDescription = if (passwordVisibility)
-                                        "Hide password" else "Show password"
-                                )
-                            }
-                        },
-                        visualTransformation = if (passwordVisibility)
-                            VisualTransformation.None else PasswordVisualTransformation(),
-                        textStyle = TextStyle(
-                            fontSize = 14.sp,
-                            color = Color.DarkGray
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 18.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color.LightGray,
-                            unfocusedBorderColor = Color.Gray,
-                            focusedTextColor = Color.DarkGray,
-                            unfocusedTextColor = Color.DarkGray
-                        )
+                        passwordVisibility = passwordVisibility,
+                        onPasswordVisibilityChange = { passwordVisibility = !passwordVisibility }
                     )
 
                     Button(
                         onClick = {
-                            signInWith(email, password) { success, user, error ->
-                                if (success && user != null) {
-                                    viewModel.updateUserSignedInStatus(user) { updateSuccess ->
-                                        if (updateSuccess) {
-                                            parentNavController.navigate("main")
-                                        } else {
-                                            errorMessage = "Failed to update user status"
-                                            showToast = true
-                                        }
-                                    }
-                                } else {
-                                    errorMessage = error ?: "Unknown Error"
-                                    showToast = true
-                                }
-                            }
+                            viewModel.authenticateUser(email, password)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -212,14 +148,36 @@ fun LoginScreen(
             }
         }
 
-        if (errorMessage.isNotEmpty()) {
+        /*if (errorMessage.isNotEmpty()) {
             AuthToast(message = errorMessage,
                 isVisible = showToast,
                 onDismiss = { showToast = false })
+        }*/
+    }
+
+    when (val state = authState) {
+        is Resource.Loading -> { }
+        is Resource.Success -> {
+            LaunchedEffect(state) {
+                parentNavController.navigate("main")
+            }
+        }
+        is Resource.Error -> {
+            LaunchedEffect(state) {
+                showToast = true
+            }
+            if (showToast) {
+                AuthToast(
+                    message = state.message ?: "Unknown error",
+                    isVisible = showToast,
+                    onDismiss = { showToast = false }
+                )
+            }
         }
     }
 }
 
+/*
 fun signInWith(email: String, password: String, onResult: (Boolean, FirebaseUser?, String?) -> Unit) {
     if (email.isBlank() || password.isBlank()) {
         onResult(false, null, "Email and (or) password cannot be empty")
@@ -236,4 +194,4 @@ fun signInWith(email: String, password: String, onResult: (Boolean, FirebaseUser
                 onResult(false, null, task.exception?.message ?: "Authentication failed")
             }
         }
-}
+}*/
