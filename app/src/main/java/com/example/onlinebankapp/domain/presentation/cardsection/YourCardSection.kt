@@ -28,7 +28,6 @@ import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.CurrencyType
 import com.example.onlinebankapp.domain.card.PaymentCardData
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun YourCardSection() {
     var showBottomSheet by remember { mutableStateOf(false) }

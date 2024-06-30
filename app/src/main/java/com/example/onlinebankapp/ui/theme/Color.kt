@@ -14,4 +14,12 @@ val SlightlyGrey = Color(0xFFF5F5F5)
 val AnotherGray = Color(0xFFE4E4E4)
 val ToastGreen = Color(0xFF43912B)
 
+//Card Colors
+val Aquamarine = Color(0xFF7FFFD4)
+val Coral = Color(0xFFFF7F50)
+val Lavender = Color(0xFFE6E6FA)
+val Teal = Color(0xFF008080)
+val Mauve = Color(0xFFE0B0FF)
+val Ochre = Color(0xFFCC7722)
+
 val Purple = Color(0xFF7B26BB)

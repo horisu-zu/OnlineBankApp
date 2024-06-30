@@ -13,15 +13,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
+import com.example.onlinebankapp.AddCardActivity
 import com.example.onlinebankapp.CardInfoActivity
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
@@ -63,10 +67,47 @@ fun CardBottomSheet(
             sheetState = sheetState,
             containerColor = SlightlyGrey
         ) {
+            SheetHeader()
             PaymentCardList(cards = items)
         }
         LaunchedEffect(sheetState) {
             scope.launch { sheetState.show() }
+        }
+    }
+}
+
+@Composable
+fun SheetHeader() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 8.dp)
+            .background(Color.Transparent),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        val context = LocalContext.current
+
+        Text(
+            text = "Your Cards >",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.DarkGray
+        )
+        TextButton(
+            onClick = {
+                val intent = Intent(context, AddCardActivity::class.java)
+                context.startActivity(intent)
+            },
+            modifier = Modifier
+                .wrapContentSize(),
+            colors = ButtonDefaults.buttonColors(
+                contentColor = Color.DarkGray,
+                containerColor = Color.Transparent
+            )
+        )
+        {
+            Text("Add Card")
         }
     }
 }

@@ -217,7 +217,7 @@ fun CreditCardButton(
             Icon(
                 painter = painterResource(id = R.drawable.ic_credit),
                 contentDescription = "Credit Card Icon",
-                tint = Color.White,
+                tint = getTextColorForBackground(paymentCardData.cardColor),
                 modifier = Modifier.size(24.dp)
             )
             Text(
