@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.onlinebankapp.R
+import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.CurrencyType
 import com.example.onlinebankapp.domain.card.PaymentCardData
@@ -58,7 +59,8 @@ fun CardItemInfoPreview() {
         cardColor = Color(0xFF1E88E5),
         currentBalance = 1234.56f,
         currency = CurrencyType.USD,
-        cardType = CardType.VISA
+        cardService = CardService.VISA,
+        cardType = CardType.DEBIT
     )
 
     val localDate = LocalDate.of(2023, 6, 28)

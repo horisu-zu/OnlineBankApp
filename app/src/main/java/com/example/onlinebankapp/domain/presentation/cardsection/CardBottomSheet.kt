@@ -22,6 +22,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -45,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import com.example.onlinebankapp.AddCardActivity
 import com.example.onlinebankapp.CardInfoActivity
+import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.launch
@@ -88,12 +91,23 @@ fun SheetHeader() {
     ) {
         val context = LocalContext.current
 
-        Text(
-            text = "Your Cards >",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = Color.DarkGray
-        )
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+        ) {
+            Text(
+                text = "Your Cards",
+                style = MaterialTheme.typography.titleSmall,
+                color = Color.DarkGray
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chevron_right),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(20.dp),
+                tint = Color.DarkGray
+            )
+        }
         TextButton(
             onClick = {
                 val intent = Intent(context, AddCardActivity::class.java)
@@ -171,7 +185,7 @@ fun PaymentCardItem(cardData: PaymentCardData, onCardClick: (String) -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(id = getCardLogo(cardData.cardType)),
+                    painter = painterResource(id = getCardLogo(cardData.cardService)),
                     contentDescription = cardData.cardType.toString(),
                     modifier = Modifier
                         .size(36.dp)

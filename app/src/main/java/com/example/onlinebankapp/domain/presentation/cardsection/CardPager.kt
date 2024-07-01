@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.CardInfoActivity
 import com.example.onlinebankapp.R
+import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -156,7 +157,7 @@ fun PaymentCard(
                     fontSize = 20.sp
                 )
                 Image(
-                    painter = painterResource(id = getCardLogo(paymentCardData.cardType)),
+                    painter = painterResource(id = getCardLogo(paymentCardData.cardService)),
                     contentDescription = paymentCardData.cardType.toString(),
                     modifier = Modifier
                         .size(60.dp)
@@ -219,13 +220,13 @@ fun hideCardNumber(cardNumber: String): String {
     return "$firstPart  $hiddenPart  $lastPart"
 }
 
-fun getCardLogo(cardType: CardType): Int {
-    return when (cardType) {
-        CardType.VISA -> R.drawable.ic_visa
-        CardType.MASTERCARD -> R.drawable.ic_mastercard
-        CardType.AMEX -> R.drawable.ic_amex
-        CardType.DISCOVER -> R.drawable.ic_discover
-        CardType.OTHER -> R.drawable.ic_other
+fun getCardLogo(cardService: CardService): Int {
+    return when (cardService) {
+        CardService.VISA -> R.drawable.ic_visa
+        CardService.MASTERCARD -> R.drawable.ic_mastercard
+        CardService.AMEX -> R.drawable.ic_amex
+        CardService.DISCOVER -> R.drawable.ic_discover
+        CardService.OTHER -> R.drawable.ic_other
     }
 }
 

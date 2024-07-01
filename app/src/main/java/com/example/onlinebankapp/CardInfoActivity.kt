@@ -9,6 +9,7 @@ import com.example.onlinebankapp.domain.operation.OperationItemData
 import com.example.onlinebankapp.domain.operation.operationDataList
 import com.example.onlinebankapp.domain.presentation.cardsection.carditem.CardItemInfo
 import com.example.onlinebankapp.domain.presentation.cardsection.getCardData
+import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 
 class CardInfoActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,10 +18,12 @@ class CardInfoActivity : ComponentActivity() {
         val cardId = intent.getStringExtra("cardId") ?: return
 
         setContent {
-            val cardData = getCardById(cardId)
-            val cardOperations = getOperationsForCard(cardId)
+            OnlineBankAppTheme {
+                val cardData = getCardById(cardId)
+                val cardOperations = getOperationsForCard(cardId)
 
-            CardItemInfo(cardData, cardOperations)
+                CardItemInfo(cardData, cardOperations)
+            }
         }
     }
 

@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.onlinebankapp.R
+import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.CurrencyType
 import com.example.onlinebankapp.domain.card.PaymentCardData
@@ -96,7 +97,8 @@ fun getCardData(): List<PaymentCardData> {
             cvv = "123",
             currentBalance = 1000f,
             currency = CurrencyType.UAH,
-            cardType = CardType.VISA,
+            cardService = CardService.VISA,
+            cardType = CardType.CREDIT,
             cardColor = Color(0XFF7FFFD4)
         ),
         PaymentCardData(
@@ -107,7 +109,8 @@ fun getCardData(): List<PaymentCardData> {
             cvv = "456",
             currentBalance = 2500.12f,
             currency = CurrencyType.EUR,
-            cardType = CardType.MASTERCARD,
+            cardService = CardService.MASTERCARD,
+            cardType = CardType.CREDIT,
             cardColor = Color(0xFFE3E934)
         ),
         PaymentCardData(
@@ -118,7 +121,8 @@ fun getCardData(): List<PaymentCardData> {
             cvv = "4567",
             currentBalance = 1232.1224f,
             currency = CurrencyType.USD,
-            cardType = CardType.AMEX,
+            cardService = CardService.AMEX,
+            cardType = CardType.DEBIT,
             cardColor = Color.Black
         ),
         PaymentCardData(
@@ -129,7 +133,8 @@ fun getCardData(): List<PaymentCardData> {
             cvv = "789",
             currentBalance = 3500.75f,
             currency = CurrencyType.USD,
-            cardType = CardType.DISCOVER,
+            cardService = CardService.DISCOVER,
+            cardType = CardType.DEBIT,
             cardColor = Color(0xFFFFA500)
         ),
         PaymentCardData(
@@ -140,7 +145,8 @@ fun getCardData(): List<PaymentCardData> {
             cvv = "987",
             currentBalance = 20000.50f,
             currency = CurrencyType.CNY,
-            cardType = CardType.OTHER,
+            cardService = CardService.OTHER,
+            cardType = CardType.CREDIT,
             cardColor = Color(0xFFFF4500)
         )
     )

@@ -10,6 +10,7 @@ data class PaymentCardData(
     val cvv: String,
     val currentBalance: Float,
     val currency: CurrencyType,
+    val cardService: CardService,
     val cardType: CardType,
     val cardColor: Color
 )
@@ -19,5 +20,9 @@ enum class CurrencyType {
 }
 
 enum class CardType {
+    CREDIT, DEBIT
+}
+
+enum class CardService {
     VISA, MASTERCARD, AMEX, DISCOVER, OTHER
 }

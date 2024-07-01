@@ -112,7 +112,7 @@ fun CardHeader(
                     modifier = Modifier.clickable { isCardNumberVisible = !isCardNumberVisible }
                 )
                 Image(
-                    painter = painterResource(id = getCardLogo(paymentCardData.cardType)),
+                    painter = painterResource(id = getCardLogo(paymentCardData.cardService)),
                     contentDescription = paymentCardData.cardType.toString(),
                     modifier = Modifier.size(48.dp)
                 )

@@ -22,9 +22,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -44,7 +42,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.R
-import com.example.onlinebankapp.ui.theme.AnotherGray
+import com.example.onlinebankapp.domain.card.CardType
+import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.ui.theme.Aquamarine
 import com.example.onlinebankapp.ui.theme.Coral
 import com.example.onlinebankapp.ui.theme.Lavender
@@ -56,16 +55,8 @@ import com.example.onlinebankapp.ui.theme.Teal
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardInput(
-    cardNumber: String,
-    onCardNumberChange: (String) -> Unit,
-    expiryDate: String,
-    onExpiryDateChange: (String) -> Unit,
-    cvv: String,
-    onCvvChange: (String) -> Unit,
-    cardColor: Color,
-    onCardColorChange: (Color) -> Unit,
-    isDebit: Boolean,
-    onCardTypeChange: (Boolean) -> Unit
+    cardData: PaymentCardData,
+    onCardDataChange: (PaymentCardData) -> Unit
 ) {
     var passwordVisibility by remember { mutableStateOf(false) }
     var isAmex by remember { mutableStateOf(false) }
@@ -77,14 +68,20 @@ fun CardInput(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        CardTypeSelector(isDebit, onCardTypeChange)
+        CardTypeSelector(
+            isDebit = cardData.cardType == CardType.DEBIT,
+            onCardTypeChange = { isDebit ->
+                onCardDataChange(cardData.copy(cardType = if (isDebit) CardType.DEBIT
+                else CardType.CREDIT))
+            }
+        )
 
         TextField(
-            value = cardNumber,
+            value = cardData.cardNumber,
             onValueChange = {
                 if (it.length <= 16) {
-                    onCardNumberChange(it)
-                    isAmex = it.startsWith("34") || it.startsWith("37")
+                    isAmex = it.startsWith("3")
+                    onCardDataChange(cardData.copy(cardNumber = it))
                 }
             },
             label = { Text("Card Number") },
@@ -108,10 +105,9 @@ fun CardInput(
             val years = (2024..2029).map { it.toString() }
 
             DateSelector(
-                selectedValue = expiryDate.substringBefore("/"),
+                selectedValue = cardData.expiryMonth,
                 onValueSelected = { month ->
-                    onExpiryDateChange("$month/${expiryDate.substringAfter("/", 
-                        "")}")
+                    onCardDataChange(cardData.copy(expiryMonth = month))
                 },
                 label = "Month",
                 options = months,
@@ -119,9 +115,9 @@ fun CardInput(
             )
 
             DateSelector(
-                selectedValue = expiryDate.substringAfter("/", ""),
+                selectedValue = cardData.expiryYear,
                 onValueSelected = { year ->
-                    onExpiryDateChange("${expiryDate.substringBefore("/")}/$year")
+                    onCardDataChange(cardData.copy(expiryYear = year))
                 },
                 label = "Year",
                 options = years,
@@ -129,10 +125,10 @@ fun CardInput(
             )
 
             TextField(
-                value = cvv,
+                value = cardData.cvv,
                 onValueChange = {
                     if ((isAmex && it.length <= 4) || (!isAmex && it.length <= 3)) {
-                        onCvvChange(it)
+                        onCardDataChange(cardData.copy(cvv = it))
                     }
                 },
                 trailingIcon = {
@@ -171,8 +167,8 @@ fun CardInput(
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             ColorSelector(
-                selectedColor = cardColor,
-                onColorSelected = onCardColorChange
+                selectedColor = cardData.cardColor,
+                onColorSelected = { onCardDataChange(cardData.copy(cardColor = it)) }
             )
         }
     }
@@ -233,7 +229,7 @@ fun ColorItem(
 fun CardTypeSelector(isDebit: Boolean, onCardTypeChange: (Boolean) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         CardType(
             text = "Credit",
@@ -264,14 +260,15 @@ fun CardType(
                 width = 2.dp,
                 color = if (isSelected) Color.DarkGray else Color.Transparent,
                 shape = RoundedCornerShape(8.dp)
-            )
-            .clickable(onClick = onClick),
+            ),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) Color.Black.copy(alpha = 0.1f) else Color.White
         )
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable(onClick = onClick),
             contentAlignment = Alignment.Center
         ) {
             Text(
