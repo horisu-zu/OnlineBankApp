@@ -3,6 +3,7 @@ package com.example.onlinebankapp.domain.card
 import androidx.compose.ui.graphics.Color
 
 data class PaymentCardData(
+    var ownerId: String,
     val cardName: String,
     val cardNumber: String,
     val expiryMonth: String,

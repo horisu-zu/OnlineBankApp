@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -105,50 +106,42 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
             ) {
                 composable(
                     route = BottomNavItem.Home.route,
-                    enterTransition = getEnterTransition(
-                        BottomNavItem.Home.route,
-                        BottomNavItem.History.route,
-                        BottomNavItem.Services.route
-                    ),
-                    exitTransition = getExitTransition(
-                        BottomNavItem.Home.route,
-                        BottomNavItem.History.route,
-                        BottomNavItem.Services.route
-                    )
+                    enterTransition = { getTransitions(BottomNavItem.Home.route,
+                        null,
+                        BottomNavItem.History.route)()?.let { slideIntoContainer(it) } },
+                    exitTransition = { getTransitions(BottomNavItem.Home.route,
+                        null,
+                        BottomNavItem.History.route)()?.let { slideOutOfContainer(it) } }
                 ) {
                     HomeScreen {
-                        scope.launch { drawerState.open() }
+                        scope.launch {
+                            drawerState.open()
+                        }
                     }
                 }
-                composable(
-                    route = BottomNavItem.Services.route,
-                    enterTransition = getEnterTransition(
-                        BottomNavItem.Services.route,
-                        BottomNavItem.Home.route,
-                        BottomNavItem.History.route
-                    ),
-                    exitTransition = getExitTransition(
-                        BottomNavItem.Services.route,
-                        BottomNavItem.Home.route,
-                        BottomNavItem.History.route
-                    )
-                ) {
-                    ServicesScreen()
-                }
+
                 composable(
                     route = BottomNavItem.History.route,
-                    enterTransition = getEnterTransition(
-                        BottomNavItem.History.route,
-                        BottomNavItem.Services.route,
-                        BottomNavItem.Home.route
-                    ),
-                    exitTransition = getExitTransition(
-                        BottomNavItem.History.route,
-                        BottomNavItem.Services.route,
-                        BottomNavItem.Home.route
-                    )
+                    enterTransition = { getTransitions(BottomNavItem.History.route,
+                        BottomNavItem.Home.route,
+                        BottomNavItem.Services.route)()?.let { slideIntoContainer(it) } },
+                    exitTransition = { getTransitions(BottomNavItem.History.route,
+                        BottomNavItem.Home.route,
+                        BottomNavItem.Services.route)()?.let { slideOutOfContainer(it) } }
                 ) {
                     HistoryScreen()
+                }
+
+                composable(
+                    route = BottomNavItem.Services.route,
+                    enterTransition = { getTransitions(BottomNavItem.Services.route,
+                        BottomNavItem.History.route,
+                        null)()?.let { slideIntoContainer(it) } },
+                    exitTransition = { getTransitions(BottomNavItem.Services.route,
+                        BottomNavItem.History.route,
+                        null)()?.let { slideOutOfContainer(it) } }
+                ) {
+                    ServicesScreen()
                 }
             }
         }
@@ -199,27 +192,24 @@ fun ServicesScreen() {
     ) {}
 }
 
-fun getEnterTransition(
+@OptIn(ExperimentalAnimationApi::class)
+fun getTransitions(
     route: String,
-    leftRoute: String,
-    rightRoute: String
-): AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition? = {
-    when (initialState.destination.route) {
-        leftRoute -> slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right)
-        rightRoute -> slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left)
-        else -> null
-    }
-}
+    leftRoute: String?,
+    rightRoute: String?
+): AnimatedContentTransitionScope<NavBackStackEntry>.() -> AnimatedContentTransitionScope.SlideDirection? {
+    return {
+        when {
+            (leftRoute != null && initialState.destination.route == leftRoute && targetState.destination.route == route) ||
+                    (rightRoute != null && initialState.destination.route == route && targetState.destination.route == rightRoute) ->
+                AnimatedContentTransitionScope.SlideDirection.Left
 
-fun getExitTransition(
-    route: String,
-    leftRoute: String,
-    rightRoute: String
-): AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition? = {
-    when (targetState.destination.route) {
-        leftRoute -> slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left)
-        rightRoute -> slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
-        else -> null
+            (rightRoute != null && initialState.destination.route == rightRoute && targetState.destination.route == route) ||
+                    (leftRoute != null && initialState.destination.route == route && targetState.destination.route == leftRoute) ->
+                AnimatedContentTransitionScope.SlideDirection.Right
+
+            else -> null
+        }
     }
 }
 

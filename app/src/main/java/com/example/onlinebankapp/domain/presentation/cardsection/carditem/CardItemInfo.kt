@@ -51,6 +51,7 @@ fun CardItemInfo(
 @Composable
 fun CardItemInfoPreview() {
     val sampleCardData = PaymentCardData(
+        ownerId = "",
         cardName = "John Doe",
         cardNumber = "1234 5678 9012 3456",
         expiryMonth = "12",

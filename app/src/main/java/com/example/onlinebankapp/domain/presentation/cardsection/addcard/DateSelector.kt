@@ -42,7 +42,9 @@ fun DateSelector(
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = SlightlyGrey,
                 focusedIndicatorColor = Color.DarkGray,
-                unfocusedIndicatorColor = Color.Gray
+                unfocusedIndicatorColor = Color.Gray,
+                unfocusedTextColor = Color.DarkGray,
+                focusedTextColor = Color.DarkGray
             ),
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.menuAnchor()

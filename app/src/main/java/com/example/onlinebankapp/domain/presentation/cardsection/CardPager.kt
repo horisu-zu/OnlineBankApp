@@ -35,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.onlinebankapp.AddCardActivity
 import com.example.onlinebankapp.CardInfoActivity
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CardService
@@ -180,6 +181,7 @@ fun AddNewCard(
         ),
         label = ""
     )
+    val context = LocalContext.current
 
     Card(
         modifier = modifier
@@ -198,6 +200,10 @@ fun AddNewCard(
                         end = androidx.compose.ui.geometry.Offset(750f, 750f)
                     )
                 )
+                .clickable {
+                    val intent = Intent(context, AddCardActivity::class.java)
+                    context.startActivity(intent)
+                }
                 .padding(16.dp)
         ) {
             Icon(

@@ -90,6 +90,7 @@ fun YourCardsButton(
 fun getCardData(): List<PaymentCardData> {
     return listOf(
         PaymentCardData(
+            ownerId = "",
             cardName = "Visa Classic",
             cardNumber = "4149 5678 9101 1121",
             expiryMonth = "12",
@@ -102,6 +103,7 @@ fun getCardData(): List<PaymentCardData> {
             cardColor = Color(0XFF7FFFD4)
         ),
         PaymentCardData(
+            ownerId = "",
             cardName = "MasterCard Gold",
             cardNumber = "5168 2222 3333 4444",
             expiryMonth = "06",
@@ -114,6 +116,7 @@ fun getCardData(): List<PaymentCardData> {
             cardColor = Color(0xFFE3E934)
         ),
         PaymentCardData(
+            ownerId = "",
             cardName = "American Express Black",
             cardNumber = "3742 2222 3333 4182",
             expiryMonth = "09",
@@ -126,6 +129,7 @@ fun getCardData(): List<PaymentCardData> {
             cardColor = Color.Black
         ),
         PaymentCardData(
+            ownerId = "",
             cardName = "Discover It",
             cardNumber = "6011 1111 2222 3333",
             expiryMonth = "03",
@@ -138,6 +142,7 @@ fun getCardData(): List<PaymentCardData> {
             cardColor = Color(0xFFFFA500)
         ),
         PaymentCardData(
+            ownerId = "",
             cardName = "UnionPay Platinum",
             cardNumber = "6234 5678 9012 3456",
             expiryMonth = "11",

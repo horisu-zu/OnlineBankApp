@@ -36,8 +36,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -78,10 +81,14 @@ fun CardInput(
 
         TextField(
             value = cardData.cardNumber,
-            onValueChange = {
-                if (it.length <= 16) {
-                    isAmex = it.startsWith("3")
-                    onCardDataChange(cardData.copy(cardNumber = it))
+            onValueChange = { cardNumber ->
+                if (cardNumber.length <= 16) {
+                    isAmex = cardNumber.startsWith("3")
+                    val formattedNumber = cardNumber.replace("\\s".toRegex(), "")
+                    onCardDataChange(cardData.copy(
+                        cardNumber = formattedNumber,
+                        cardService = getCardServiceFromNumber(formattedNumber)
+                    ))
                 }
             },
             label = { Text("Card Number") },
@@ -92,9 +99,12 @@ fun CardInput(
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = SlightlyGrey,
                 focusedIndicatorColor = Color.DarkGray,
-                unfocusedIndicatorColor = Color.Gray
+                unfocusedIndicatorColor = Color.Gray,
+                unfocusedTextColor = Color.DarkGray,
+                focusedTextColor = Color.DarkGray
             ),
-            singleLine = true
+            singleLine = true,
+            visualTransformation = formatInputNumber(cardData.cardNumber)
         )
 
         Row(
@@ -151,7 +161,9 @@ fun CardInput(
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = SlightlyGrey,
                     focusedIndicatorColor = Color.DarkGray,
-                    unfocusedIndicatorColor = Color.Gray
+                    unfocusedIndicatorColor = Color.Gray,
+                    unfocusedTextColor = Color.DarkGray,
+                    focusedTextColor = Color.DarkGray
                 ),
                 visualTransformation = if (passwordVisibility) VisualTransformation.None
                 else PasswordVisualTransformation(),
@@ -276,5 +288,25 @@ fun CardType(
                 color = if (isSelected) Color.DarkGray else Color.Black
             )
         }
+    }
+}
+
+
+fun formatInputNumber(text: String): VisualTransformation {
+    return VisualTransformation { text ->
+        val trimmed = text.text.take(16)
+        val formatted = trimmed.chunked(4).joinToString(" ")
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int =
+                if (offset <= 4) offset else if (offset <= 8) offset + 1
+                else if (offset <= 12) offset + 2 else offset + 3
+
+            override fun transformedToOriginal(offset: Int): Int =
+                if (offset <= 4) offset else if (offset <= 9) offset - 1
+                else if (offset <= 14) offset - 2 else offset - 3
+        }
+
+        TransformedText(AnnotatedString(formatted), offsetMapping)
     }
 }

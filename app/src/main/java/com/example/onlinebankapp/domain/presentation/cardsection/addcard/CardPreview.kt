@@ -44,7 +44,7 @@ fun CardPreview(
     )
     val textColor = getTextColorForBackground(cardData.cardColor)
 
-    val cardService = getCardTypeFromNumber(cardData.cardNumber)
+    val cardService = getCardServiceFromNumber(cardData.cardNumber)
     val cardName = generateCardName(cardData.cardService, cardData.cardType == CardType.DEBIT)
 
     Card(
@@ -95,7 +95,7 @@ fun CardPreview(
     }
 }
 
-fun getCardTypeFromNumber(number: String): CardService {
+fun getCardServiceFromNumber(number: String): CardService {
     val cleanNumber = number.replace("\\D".toRegex(), "")
     return when {
         cleanNumber.startsWith("3") -> CardService.AMEX
