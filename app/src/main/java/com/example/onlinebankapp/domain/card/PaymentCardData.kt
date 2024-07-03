@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 data class PaymentCardData(
     var ownerId: String,
-    val cardName: String,
+    var cardName: String,
     val cardNumber: String,
     val expiryMonth: String,
     val expiryYear: String,

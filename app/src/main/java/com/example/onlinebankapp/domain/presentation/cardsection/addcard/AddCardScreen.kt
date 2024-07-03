@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewMode
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 
@@ -54,6 +56,9 @@ fun AddCardScreen(viewModel: CardViewModel, userViewModel: UserViewModel) {
     if (currentUser != null) {
         cardData.ownerId = currentUser.uid
     }
+
+    val scope = rememberCoroutineScope()
+    val addCardState by viewModel.addCardState.collectAsState()
 
     val context = LocalContext.current
     val activity = context as? Activity
@@ -92,6 +97,11 @@ fun AddCardScreen(viewModel: CardViewModel, userViewModel: UserViewModel) {
                     IconButton(
                         onClick = {
                             if (currentStep < totalSteps && isCardDataValid(cardData)) {
+                                if (currentStep == 2) {
+                                    scope.launch {
+                                        viewModel.addCard(cardData)
+                                    }
+                                }
                                 currentStep++
                             }
                         },
@@ -118,11 +128,19 @@ fun AddCardScreen(viewModel: CardViewModel, userViewModel: UserViewModel) {
             when (currentStep) {
                 1 -> AddCardComponent(viewModel)
                 2 -> CheckCardComponent(viewModel, userViewModel)
-                //3 -> ConfirmationComponent()
+                3 -> ConfirmationComponent(
+                    addCardState = addCardState,
+                    onRetry = {
+                        scope.launch {
+                            viewModel.addCard(cardData)
+                        }
+                    }
+                )
             }
         }
     }
 }
+
 @Composable
 fun AddCardComponent(viewModel: CardViewModel) {
     val cardData by viewModel.cardData.collectAsState()

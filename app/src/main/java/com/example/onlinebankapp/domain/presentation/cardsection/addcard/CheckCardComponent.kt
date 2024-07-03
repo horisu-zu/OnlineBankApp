@@ -59,11 +59,13 @@ fun CheckCardComponent(viewModel: CardViewModel, userViewModel: UserViewModel) {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text("Card Information", style = MaterialTheme.typography.titleMedium)
+                Text("Card Name: ${cardData.cardName}")
                 Text("Card Type: ${cardData.cardType}")
                 Text("Card Number: ${cardData.cardNumber}")
                 Text("Card Service : ${cardData.cardService}")
                 Text("Expiry Date: ${cardData.expiryMonth}/${cardData.expiryYear}")
                 Text("CVV: ${cardData.cvv}")
+                Text("Card Color: ${cardData.cardColor}")
             }
         }
 

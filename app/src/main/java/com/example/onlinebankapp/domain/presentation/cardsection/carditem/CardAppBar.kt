@@ -1,19 +1,26 @@
 package com.example.onlinebankapp.domain.presentation.cardsection.carditem
 
 import android.app.Activity
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -23,19 +30,26 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.presentation.cardsection.getTextColorForBackground
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,12 +58,19 @@ fun CardAppBar(
     content: @Composable () -> Unit
 ) {
     val scrollState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val activity = context as? Activity
 
     var cardHeaderHeightPx by remember { mutableFloatStateOf(0f) }
 
     val isScrolled = scrollState.firstVisibleItemScrollOffset > 0
+
+    val showButton by remember {
+        derivedStateOf {
+            scrollState.firstVisibleItemIndex > 0
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
@@ -72,6 +93,18 @@ fun CardAppBar(
             }
         }
 
+        AnimatedVisibility(visible = showButton) {
+            ScrollToTopButton(
+                onClick = {
+                    scope.launch {
+                        scrollState.animateScrollToItem(
+                            index = 0
+                        )
+                    }
+                }
+            )
+        }
+
         MainAppBar(
             paymentCardData = paymentCardData,
             isScrolled = isScrolled,
@@ -79,6 +112,37 @@ fun CardAppBar(
             onSettingsClick = { /*onSettingsClick*/ },
             onDetailsClick = { /*onDetailsClick*/ }
         )
+    }
+}
+
+@Composable
+fun ScrollToTopButton(
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 36.dp, end = 36.dp),
+        Alignment.BottomEnd
+    ) {
+        Button(
+            onClick = onClick,
+            modifier = Modifier
+                .size(64.dp)
+                .shadow(elevation = 6.dp, shape = CircleShape)
+                .clip(shape = CircleShape),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.DarkGray
+            ),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowUp,
+                contentDescription = "Arrow Up",
+                modifier = Modifier.size(48.dp)
+            )
+        }
     }
 }
 
@@ -95,7 +159,8 @@ fun MainAppBar(
     val barColor = getElevationColor(paymentCardData.cardColor)
 
     TopAppBar(
-        title = { Text(text = if (isScrolled) paymentCardData.cardName else "") },
+        title = {
+            Text(text = if (isScrolled) paymentCardData.cardName else "", color = tintColor) },
         navigationIcon = {
             IconButton(onClick = onBackClick) {
                 Icon(

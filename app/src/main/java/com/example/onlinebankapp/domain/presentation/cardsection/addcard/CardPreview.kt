@@ -46,6 +46,7 @@ fun CardPreview(
 
     val cardService = getCardServiceFromNumber(cardData.cardNumber)
     val cardName = generateCardName(cardData.cardService, cardData.cardType == CardType.DEBIT)
+    cardData.cardName = cardName
 
     Card(
         modifier = modifier.padding(24.dp),
