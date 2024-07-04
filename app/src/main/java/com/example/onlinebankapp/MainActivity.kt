@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.onlinebankapp.data.repository.CardRepositoryImpl
 import com.example.onlinebankapp.data.repository.UserRepositoryImpl
 import com.example.onlinebankapp.domain.presentation.auth.AuthNavigator
 import com.example.onlinebankapp.domain.navigation.NavigationItemList
@@ -33,6 +35,7 @@ import com.example.onlinebankapp.domain.presentation.MainNavigationDrawer
 import com.example.onlinebankapp.domain.presentation.cardsection.OperationList
 import com.example.onlinebankapp.domain.presentation.cardsection.YourCardSection
 import com.example.onlinebankapp.domain.presentation.history.HistoryComponent
+import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.exchange.viewModelFactory
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModelFactory
@@ -65,6 +68,7 @@ class MainActivity : ComponentActivity() {
 fun MainContent(viewModel: UserViewModel) {
     val navController = rememberNavController()
     val auth = FirebaseAuth.getInstance()
+    val firestore = FirebaseFirestore.getInstance()
     Log.e("AUTH", auth.currentUser?.email.toString())
     val startDestination = if (auth.currentUser != null) "main" else "auth"
 
@@ -73,16 +77,20 @@ fun MainContent(viewModel: UserViewModel) {
             AuthNavigator(navController)
         }
         composable("main") {
-            MainAppNavigator(viewModel, navController)
+            MainAppNavigator(viewModel, navController, firestore, auth.uid.toString())
         }
     }
 }
 
 @Composable
-fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavController) {
+fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavController,
+                     firestore: FirebaseFirestore, userId: String) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val cardRepository = CardRepositoryImpl(firestore)
+    val cardViewModel = remember { CardViewModel(cardRepository) }
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -113,11 +121,15 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
                         null,
                         BottomNavItem.History.route)()?.let { slideOutOfContainer(it) } }
                 ) {
-                    HomeScreen {
-                        scope.launch {
-                            drawerState.open()
-                        }
-                    }
+                    HomeScreen(
+                        onMenuClicked = {
+                            scope.launch {
+                                drawerState.open()
+                            }
+                        },
+                        cardViewModel = cardViewModel,
+                        userId = userId
+                    )
                 }
 
                 composable(
@@ -150,7 +162,9 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
 
 @Composable
 fun HomeScreen(
-    onMenuClicked : () -> Unit
+    onMenuClicked : () -> Unit,
+    cardViewModel: CardViewModel,
+    userId: String
 ) {
     val viewModel = viewModel<ExchangeViewModel>(
         factory = viewModelFactory {
@@ -166,7 +180,7 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
             AppBar(viewModel, onMenuClicked = onMenuClicked) {}
-            YourCardSection()
+            YourCardSection(cardViewModel, userId)
             OperationList()
         }
     }

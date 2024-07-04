@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.card.toColor
 import com.example.onlinebankapp.domain.presentation.cardsection.getCardLogo
 import com.example.onlinebankapp.domain.presentation.cardsection.getTextColorForBackground
 
@@ -38,11 +39,11 @@ fun CardPreview(
     cardData: PaymentCardData
 ) {
     val gradient = Brush.linearGradient(
-        colors = listOf(cardData.cardColor, Color.White),
+        colors = listOf(cardData.cardColor.toColor(), Color.White),
         start = Offset(0f, 0f),
         end = Offset(750f, 750f)
     )
-    val textColor = getTextColorForBackground(cardData.cardColor)
+    val textColor = getTextColorForBackground(cardData.cardColor.toColor())
 
     val cardService = getCardServiceFromNumber(cardData.cardNumber)
     val cardName = generateCardName(cardData.cardService, cardData.cardType == CardType.DEBIT)

@@ -46,6 +46,8 @@ import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.CurrencyType
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.card.toColor
+import com.example.onlinebankapp.domain.presentation.cardsection.addcard.formatCardNumber
 import com.example.onlinebankapp.domain.presentation.cardsection.getCardLogo
 import com.example.onlinebankapp.domain.presentation.cardsection.getTextColorForBackground
 import com.example.onlinebankapp.domain.presentation.cardsection.hideCardNumber
@@ -58,12 +60,12 @@ fun CardHeader(
     modifier: Modifier = Modifier
 ) {
     val gradient = Brush.linearGradient(
-        colors = listOf(paymentCardData.cardColor, Color.White),
+        colors = listOf(paymentCardData.cardColor.toColor(), Color.White),
         start = Offset(0f, 0f),
         end = Offset(1250f, 1250f)
     )
 
-    val textColor = getTextColorForBackground(paymentCardData.cardColor)
+    val textColor = getTextColorForBackground(paymentCardData.cardColor.toColor())
 
     var isCvvVisible by remember { mutableStateOf(false) }
     var isCardNumberVisible by remember { mutableStateOf(false) }
@@ -85,7 +87,7 @@ fun CardHeader(
                 fontSize = 22.sp,
                 style = TextStyle(
                     shadow = Shadow(
-                        color = getElevationColor(paymentCardData.cardColor),
+                        color = getElevationColor(paymentCardData.cardColor.toColor()),
                         offset = Offset(4f, 4f),
                         blurRadius = 8f
                     )
@@ -97,14 +99,14 @@ fun CardHeader(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if (isCardNumberVisible) paymentCardData.cardNumber
+                    text = if (isCardNumberVisible) formatCardNumber(paymentCardData.cardNumber)
                         else hideCardNumber(paymentCardData.cardNumber),
                     color = textColor,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     style = TextStyle(
                         shadow = Shadow(
-                            color = getElevationColor(paymentCardData.cardColor),
+                            color = getElevationColor(paymentCardData.cardColor.toColor()),
                             offset = Offset(4f, 4f),
                             blurRadius = 8f
                         )
@@ -129,7 +131,7 @@ fun CardHeader(
                     fontSize = 15.sp,
                     style = TextStyle(
                         shadow = Shadow(
-                            color = getElevationColor(paymentCardData.cardColor),
+                            color = getElevationColor(paymentCardData.cardColor.toColor()),
                             offset = Offset(4f, 4f),
                             blurRadius = 8f
                         )
@@ -159,7 +161,7 @@ fun CardHeader(
                             fontSize = 15.sp,
                             style = TextStyle(
                                 shadow = Shadow(
-                                    color = getElevationColor(paymentCardData.cardColor),
+                                    color = getElevationColor(paymentCardData.cardColor.toColor()),
                                     offset = Offset(4f, 4f),
                                     blurRadius = 8f
                                 )
@@ -197,7 +199,7 @@ fun CreditCardButton(
     paymentCardData: PaymentCardData,
     modifier: Modifier = Modifier
 ) {
-    val textColor = getTextColorForBackground(paymentCardData.cardColor)
+    val textColor = getTextColorForBackground(paymentCardData.cardColor.toColor())
 
     Button(
         onClick = onClick,
@@ -217,7 +219,7 @@ fun CreditCardButton(
             Icon(
                 painter = painterResource(id = R.drawable.ic_credit),
                 contentDescription = "Credit Card Icon",
-                tint = getTextColorForBackground(paymentCardData.cardColor),
+                tint = getTextColorForBackground(paymentCardData.cardColor.toColor()),
                 modifier = Modifier.size(24.dp)
             )
             Text(

@@ -57,7 +57,7 @@ fun CardItemInfoPreview() {
         expiryMonth = "12",
         expiryYear = "25",
         cvv = "721",
-        cardColor = Color(0xFF1E88E5),
+        cardColor = "0xFF1E88E5",
         currentBalance = 1234.56f,
         currency = CurrencyType.USD,
         cardService = CardService.VISA,

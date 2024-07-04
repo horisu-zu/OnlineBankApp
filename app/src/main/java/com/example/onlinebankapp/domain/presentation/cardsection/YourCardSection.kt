@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.presentation.cardsection
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,10 +31,19 @@ import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.CurrencyType
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.card.toHexString
+import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
+import com.example.onlinebankapp.domain.util.Resource
 
 @Composable
-fun YourCardSection() {
+fun YourCardSection(cardViewModel: CardViewModel, userId: String) {
     var showBottomSheet by remember { mutableStateOf(false) }
+    val cardsState by cardViewModel.userCards.collectAsState()
+
+    LaunchedEffect(userId) {
+        Log.d("YourCardSection", "Loading cards for userId: $userId")
+        cardViewModel.setUserId(userId)
+    }
 
     Box(
         modifier = Modifier
@@ -47,15 +59,24 @@ fun YourCardSection() {
                 onClick = { showBottomSheet = true },
                 modifier = Modifier.padding(start = 24.dp)
             )
-            PaymentCardPager(items = getCardData())
+            PaymentCardPager(items = getCardsFromState(cardsState))
         }
     }
 
     CardBottomSheet(
-        items = getCardData(),
+        items = getCardsFromState(cardsState),
         showBottomSheet = showBottomSheet,
         onDismissRequest = { showBottomSheet = false }
     )
+}
+
+fun getCardsFromState(
+    cardState: Resource<List<PaymentCardData>>): List<PaymentCardData>
+{
+    return when (cardState) {
+        is Resource.Success -> cardState.data ?: emptyList()
+        else -> emptyList()
+    }
 }
 
 @Composable
@@ -100,7 +121,7 @@ fun getCardData(): List<PaymentCardData> {
             currency = CurrencyType.UAH,
             cardService = CardService.VISA,
             cardType = CardType.CREDIT,
-            cardColor = Color(0XFF7FFFD4)
+            cardColor = "0XFF7FFFD4"
         ),
         PaymentCardData(
             ownerId = "",
@@ -113,7 +134,7 @@ fun getCardData(): List<PaymentCardData> {
             currency = CurrencyType.EUR,
             cardService = CardService.MASTERCARD,
             cardType = CardType.CREDIT,
-            cardColor = Color(0xFFE3E934)
+            cardColor = "0xFFE3E934"
         ),
         PaymentCardData(
             ownerId = "",
@@ -126,7 +147,7 @@ fun getCardData(): List<PaymentCardData> {
             currency = CurrencyType.USD,
             cardService = CardService.AMEX,
             cardType = CardType.DEBIT,
-            cardColor = Color.Black
+            cardColor = Color.Black.toHexString()
         ),
         PaymentCardData(
             ownerId = "",
@@ -139,7 +160,7 @@ fun getCardData(): List<PaymentCardData> {
             currency = CurrencyType.USD,
             cardService = CardService.DISCOVER,
             cardType = CardType.DEBIT,
-            cardColor = Color(0xFFFFA500)
+            cardColor = "0xFFFFA500"
         ),
         PaymentCardData(
             ownerId = "",
@@ -152,7 +173,7 @@ fun getCardData(): List<PaymentCardData> {
             currency = CurrencyType.CNY,
             cardService = CardService.OTHER,
             cardType = CardType.CREDIT,
-            cardColor = Color(0xFFFF4500)
+            cardColor = "0xFFFF4500"
         )
     )
 }

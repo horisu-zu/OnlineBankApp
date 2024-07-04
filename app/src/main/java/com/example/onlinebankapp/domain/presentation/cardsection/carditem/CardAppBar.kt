@@ -2,6 +2,7 @@ package com.example.onlinebankapp.domain.presentation.cardsection.carditem
 
 import android.app.Activity
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -48,7 +49,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.card.toColor
 import com.example.onlinebankapp.domain.presentation.cardsection.getTextColorForBackground
+import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +75,11 @@ fun CardAppBar(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SlightlyGrey)
+    ) {
         LazyColumn(
             state = scrollState,
             modifier = Modifier.fillMaxSize()
@@ -155,8 +162,8 @@ fun MainAppBar(
     onSettingsClick: () -> Unit,
     onDetailsClick: () -> Unit
 ) {
-    val tintColor = getTextColorForBackground(paymentCardData.cardColor)
-    val barColor = getElevationColor(paymentCardData.cardColor)
+    val tintColor = getTextColorForBackground(paymentCardData.cardColor.toColor())
+    val barColor = getElevationColor(paymentCardData.cardColor.toColor())
 
     TopAppBar(
         title = {

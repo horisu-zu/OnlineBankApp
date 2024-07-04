@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.card.toColor
+import com.example.onlinebankapp.domain.card.toHexString
 import com.example.onlinebankapp.ui.theme.Aquamarine
 import com.example.onlinebankapp.ui.theme.Coral
 import com.example.onlinebankapp.ui.theme.Lavender
@@ -179,8 +181,8 @@ fun CardInput(
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             ColorSelector(
-                selectedColor = cardData.cardColor,
-                onColorSelected = { onCardDataChange(cardData.copy(cardColor = it)) }
+                selectedColor = cardData.cardColor.toColor(),
+                onColorSelected = { onCardDataChange(cardData.copy(cardColor = it.toHexString())) }
             )
         }
     }

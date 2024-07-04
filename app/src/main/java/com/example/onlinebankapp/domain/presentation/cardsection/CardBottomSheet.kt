@@ -49,6 +49,7 @@ import com.example.onlinebankapp.AddCardActivity
 import com.example.onlinebankapp.CardInfoActivity
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.card.toColor
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -148,7 +149,7 @@ fun PaymentCardList(cards: List<PaymentCardData>) {
 @Composable
 fun PaymentCardItem(cardData: PaymentCardData, onCardClick: (String) -> Unit) {
     val gradient = Brush.linearGradient(
-        colors = listOf(cardData.cardColor, Color.White),
+        colors = listOf(cardData.cardColor.toColor(), Color.White),
         start = androidx.compose.ui.geometry.Offset(0f, 0f),
         end = androidx.compose.ui.geometry.Offset(200f, 200f)
     )

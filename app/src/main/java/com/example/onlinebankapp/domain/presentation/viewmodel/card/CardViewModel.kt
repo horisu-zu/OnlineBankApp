@@ -1,7 +1,9 @@
 package com.example.onlinebankapp.domain.presentation.viewmodel.card
 
+import android.util.Log
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.onlinebankapp.domain.card.CardService
@@ -11,14 +13,20 @@ import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.presentation.cardsection.addcard.getCardServiceFromNumber
 import com.example.onlinebankapp.domain.repository.CardRepository
 import com.example.onlinebankapp.domain.util.Resource
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class CardViewModel(private val cardRepository: CardRepository) : ViewModel() {
     private val _cardData = MutableStateFlow(
         PaymentCardData(
+            cardId = "",
             ownerId = "",
             cardName = "",
             cardNumber = "",
@@ -29,12 +37,38 @@ class CardViewModel(private val cardRepository: CardRepository) : ViewModel() {
             currency = CurrencyType.UAH,
             cardService = CardService.OTHER,
             cardType = CardType.CREDIT,
-            cardColor = Color.Black
+            cardColor = "0xFFFFFFF"
         )
     )
     val cardData: StateFlow<PaymentCardData> = _cardData.asStateFlow()
     private val _addCardState = MutableStateFlow<Resource<Void?>>(Resource.Loading())
     val addCardState: StateFlow<Resource<Void?>> = _addCardState.asStateFlow()
+
+    private val _userId = MutableStateFlow<String?>(null)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val userCards: StateFlow<Resource<List<PaymentCardData>>> = _userId
+        .filterNotNull()
+        .flatMapLatest { userId ->
+            cardRepository.getCardsBy(userId)
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, Resource.Loading())
+
+    fun setUserId(userId: String) {
+        _userId.value = userId
+    }
+
+    fun getCardById(cardId: String) {
+        viewModelScope.launch {
+            cardRepository.getCardInfo(cardId).collect { result ->
+                when (result) {
+                    is Resource.Success -> _cardData.value = result.data!!
+                    is Resource.Error -> Log.e("CardViewModel",
+                        "Error loading card: ${result.message}")
+                    is Resource.Loading -> Log.d("CardViewModel", "Loading card...")
+                }
+            }
+        }
+    }
 
     val cardService = derivedStateOf {
         getCardServiceFromNumber(_cardData.value.cardNumber)

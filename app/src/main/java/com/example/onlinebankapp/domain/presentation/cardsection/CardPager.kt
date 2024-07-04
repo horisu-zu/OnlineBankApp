@@ -41,6 +41,7 @@ import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.card.toColor
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -86,7 +87,7 @@ fun PaymentCard(
     onCardClick: (String) -> Unit
 ) {
     val gradient = Brush.linearGradient(
-        colors = listOf(paymentCardData.cardColor, Color.White),
+        colors = listOf(paymentCardData.cardColor.toColor(), Color.White),
         start = androidx.compose.ui.geometry.Offset(0f, 0f),
         end = androidx.compose.ui.geometry.Offset(750f, 750f)
     )
@@ -104,14 +105,14 @@ fun PaymentCard(
         modifier = modifier
             //.padding(12.dp, 8.dp)
             .scale(cardSize)
-            .clickable { onCardClick(paymentCardData.cardName) },
+            .clickable { onCardClick(paymentCardData.cardId) },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.elevatedCardElevation(6.dp),
         /*colors = CardDefaults.cardColors(
             containerColor = paymentCardData.cardColor
         )*/
     ) {
-        val textColor = getTextColorForBackground(paymentCardData.cardColor)
+        val textColor = getTextColorForBackground(paymentCardData.cardColor.toColor())
 
         Box(
             modifier = Modifier
@@ -138,7 +139,7 @@ fun PaymentCard(
                     fontSize = 16.sp
                 )
                 Text(
-                    text = "${paymentCardData.expiryMonth}/${paymentCardData.expiryYear}",
+                    text = formatExpiryDate(paymentCardData),
                     color = textColor,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp
@@ -219,11 +220,16 @@ fun AddNewCard(
 }
 
 fun hideCardNumber(cardNumber: String): String {
-    val firstPart = cardNumber.substring(0, 4)
+    val firstPart = cardNumber.take(4)
     val hiddenPart = "**** ****"
-    val lastPart = cardNumber.substring(15)
+    val lastPart = cardNumber.takeLast(4)
 
     return "$firstPart  $hiddenPart  $lastPart"
+}
+
+fun formatExpiryDate(paymentCardData: PaymentCardData): String {
+    val expiryYear = paymentCardData.expiryYear.takeLast(2)
+    return "${paymentCardData.expiryMonth}/$expiryYear"
 }
 
 fun getCardLogo(cardService: CardService): Int {
