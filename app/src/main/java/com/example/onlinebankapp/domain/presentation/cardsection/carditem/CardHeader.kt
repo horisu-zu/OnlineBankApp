@@ -1,5 +1,7 @@
 package com.example.onlinebankapp.domain.presentation.cardsection.carditem
 
+import android.app.Activity
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,12 +38,15 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.onlinebankapp.CardInfoActivity
+import com.example.onlinebankapp.OperationActivity
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.CurrencyType
@@ -64,6 +69,9 @@ fun CardHeader(
         start = Offset(0f, 0f),
         end = Offset(1250f, 1250f)
     )
+
+    val context = LocalContext.current
+    val activity = context as Activity?
 
     val textColor = getTextColorForBackground(paymentCardData.cardColor.toColor())
 
@@ -188,7 +196,13 @@ fun CardHeader(
                     fontSize = 16.sp
                 )
             }
-            CreditCardButton(onClick = { }, paymentCardData)
+            CreditCardButton(onClick = {
+                val intent = Intent(context, OperationActivity::class.java).apply {
+                    putExtra("cardId", paymentCardData.cardId)
+                    putExtra("operationType", "TopUp")
+                }
+                context.startActivity(intent)
+            }, paymentCardData)
         }
     }
 }

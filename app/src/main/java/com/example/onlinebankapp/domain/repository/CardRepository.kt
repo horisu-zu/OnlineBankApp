@@ -9,5 +9,5 @@ interface CardRepository {
     suspend fun getCardsBy(ownerId: String): Flow<Resource<List<PaymentCardData>>>
     suspend fun getCardInfo(cardId: String) : Flow<Resource<PaymentCardData>>
     suspend fun updateCard(cardId: String, cardData: PaymentCardData) : Flow<Resource<Void?>>
-    suspend fun addCard(cardData: PaymentCardData) : Flow<Resource<Void?>>
+    suspend fun addCard(cardData: PaymentCardData) : Flow<Resource<String>>
 }

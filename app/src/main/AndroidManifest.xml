@@ -16,6 +16,9 @@
         android:theme="@style/Theme.OnlineBankApp"
         tools:targetApi="31">
         <activity
+            android:exported="false"
+            android:name=".OperationActivity" />
+        <activity
             android:name=".AddCardActivity"
             android:exported="false" />
         <activity

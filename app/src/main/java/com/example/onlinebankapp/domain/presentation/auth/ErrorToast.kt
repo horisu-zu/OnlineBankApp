@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AuthToast(message: String, isVisible: Boolean, onDismiss: () -> Unit) {
+fun ErrorToast(message: String, isVisible: Boolean, onDismiss: () -> Unit) {
     AnimatedVisibility(
         visible = isVisible,
         enter = fadeIn(animationSpec = tween(600)) +

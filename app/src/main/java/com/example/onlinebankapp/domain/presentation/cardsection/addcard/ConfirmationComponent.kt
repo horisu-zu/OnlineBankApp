@@ -39,7 +39,7 @@ import com.example.onlinebankapp.ui.theme.SlightlyGrey
 
 @Composable
 fun ConfirmationComponent(
-    addCardState: Resource<Void?>,
+    addCardState: Resource<String>,
     onRetry: () -> Unit
 ) {
     Column(

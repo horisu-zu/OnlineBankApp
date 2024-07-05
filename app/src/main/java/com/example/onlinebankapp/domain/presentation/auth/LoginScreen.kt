@@ -63,7 +63,9 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
+
     var showToast by remember { mutableStateOf(false) }
+    var toastMessage by remember { mutableStateOf("") }
 
     val authState by viewModel.authState.collectAsState()
 
@@ -135,7 +137,9 @@ fun LoginScreen(
             }
 
             TextButton(
-                onClick = { navController.navigate("signup") },
+                onClick = {
+                    navController.navigate("signup")
+                    showToast = false },
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(top = 16.dp),
@@ -165,16 +169,16 @@ fun LoginScreen(
         is Resource.Error -> {
             LaunchedEffect(state) {
                 showToast = true
-            }
-            if (showToast) {
-                AuthToast(
-                    message = state.message ?: "Unknown error",
-                    isVisible = showToast,
-                    onDismiss = { showToast = false }
-                )
+                toastMessage = state.message ?: "Unknown Error"
             }
         }
     }
+
+    ErrorToast(
+        message = toastMessage,
+        isVisible = showToast,
+        onDismiss = { showToast = false }
+    )
 }
 
 /*

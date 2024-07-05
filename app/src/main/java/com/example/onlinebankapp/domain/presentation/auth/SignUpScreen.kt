@@ -63,7 +63,9 @@ fun SignUpScreen(
     var userName by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
+
     var showToast by remember { mutableStateOf(false) }
+    var toastMessage by remember { mutableStateOf("") }
 
     val authState by viewModel.authState.collectAsState()
 
@@ -148,7 +150,9 @@ fun SignUpScreen(
             }
 
             TextButton(
-                onClick = { navController.navigate("login") },
+                onClick = {
+                    navController.navigate("login")
+                    showToast = false },
                 modifier = Modifier
                     .wrapContentWidth()
                     .padding(top = 16.dp),
@@ -163,30 +167,25 @@ fun SignUpScreen(
     }
 
     when (val state = authState) {
-        is Resource.Loading -> {
-        }
-
+        is Resource.Loading -> { }
         is Resource.Success -> {
             LaunchedEffect(state) {
-                parentNavController.navigate("main") {
-                    popUpTo("auth") { inclusive = true }
-                }
+                parentNavController.navigate("main")
             }
         }
-
         is Resource.Error -> {
             LaunchedEffect(state) {
                 showToast = true
-            }
-            if (showToast) {
-                AuthToast(
-                    message = state.message ?: "Unknown error",
-                    isVisible = showToast,
-                    onDismiss = { showToast = false }
-                )
+                toastMessage = state.message ?: "Unknown Error"
             }
         }
     }
+
+    ErrorToast(
+        message = toastMessage,
+        isVisible = showToast,
+        onDismiss = { showToast = false }
+    )
 }
 
 @Composable

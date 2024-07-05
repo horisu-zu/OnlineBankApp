@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.data.repository
 
+import android.util.Log
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.repository.CardRepository
 import com.example.onlinebankapp.domain.util.Resource
@@ -63,16 +64,16 @@ class CardRepositoryImpl(private val firestore: FirebaseFirestore): CardReposito
         }
     }
 
-    override suspend fun addCard(cardData: PaymentCardData): Flow<Resource<Void?>> = flow {
+    override suspend fun addCard(cardData: PaymentCardData): Flow<Resource<String>> = flow {
         emit(Resource.Loading())
-        try{
-            val result = firestore.collection("paymentCard")
-                .document()
-                .set(cardData)
-                .await()
-            emit(Resource.Success(result))
+        try {
+            val documentRef = firestore.collection("paymentCard").document()
+            documentRef.set(cardData.copy(cardId = documentRef.id)).await()
+            emit(Resource.Success(documentRef.id))
+            Log.d("CardRepositoryImpl", "Document added with ID: ${documentRef.id}")
         } catch (e: Exception) {
             emit(Resource.Error(e.message ?: "Unknown Error"))
+            Log.e("CardRepositoryImpl", "Error adding document: ${e.message}")
         }
     }
 }

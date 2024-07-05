@@ -3,6 +3,7 @@ package com.example.onlinebankapp.domain.card
 import android.graphics.Color.parseColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import java.util.Date
 
 data class PaymentCardData(
     val cardId: String = "",
@@ -16,7 +17,8 @@ data class PaymentCardData(
     val currency: CurrencyType,
     val cardService: CardService,
     val cardType: CardType,
-    val cardColor: String
+    val cardColor: String,
+    val createdAt: Date = Date()
 ) {
     constructor() : this(
         ownerId = "",

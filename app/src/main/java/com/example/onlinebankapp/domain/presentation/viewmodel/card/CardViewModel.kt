@@ -41,8 +41,8 @@ class CardViewModel(private val cardRepository: CardRepository) : ViewModel() {
         )
     )
     val cardData: StateFlow<PaymentCardData> = _cardData.asStateFlow()
-    private val _addCardState = MutableStateFlow<Resource<Void?>>(Resource.Loading())
-    val addCardState: StateFlow<Resource<Void?>> = _addCardState.asStateFlow()
+    private val _addCardState = MutableStateFlow<Resource<String>>(Resource.Loading())
+    val addCardState: StateFlow<Resource<String>> = _addCardState.asStateFlow()
 
     private val _userId = MutableStateFlow<String?>(null)
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -82,6 +82,15 @@ class CardViewModel(private val cardRepository: CardRepository) : ViewModel() {
         viewModelScope.launch {
             cardRepository.addCard(cardData).collect { result ->
                 _addCardState.value = result
+                when (result) {
+                    is Resource.Success -> {
+                        val newCardData = cardData.copy(cardId = result.data.toString())
+                        _cardData.value = newCardData
+                    }
+                    is Resource.Error -> Log.e("CardViewModel",
+                        "Error adding card: ${result.message}")
+                    is Resource.Loading -> Log.d("CardViewModel", "Adding card...")
+                }
             }
         }
     }
