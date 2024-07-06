@@ -1,4 +1,4 @@
-package com.example.onlinebankapp.domain.presentation.cardsection.addcard
+package com.example.onlinebankapp.domain.presentation.template
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState

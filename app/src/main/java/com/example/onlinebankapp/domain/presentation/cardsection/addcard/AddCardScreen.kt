@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.presentation.template.StepAppBar
+import com.example.onlinebankapp.domain.presentation.template.StepIndicator
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
@@ -53,9 +53,7 @@ fun AddCardScreen(viewModel: CardViewModel, userViewModel: UserViewModel) {
     val isEnabled = currentStep < totalSteps && isCardDataValid(cardData)
 
     val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
-    if (currentUser != null) {
-        cardData.ownerId = currentUser.uid
-    }
+    cardData.ownerId = currentUser?.uid.toString()
 
     val scope = rememberCoroutineScope()
     val addCardState by viewModel.addCardState.collectAsState()
@@ -73,50 +71,22 @@ fun AddCardScreen(viewModel: CardViewModel, userViewModel: UserViewModel) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { StepIndicator(
-                    stepsCount = totalSteps,
-                    currentStep = currentStep,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) },
-                navigationIcon = {
-                    IconButton(
-                        onClick = { handleBackNavigation() },
-                        enabled = currentStep < 3
-                    ) {
-                        Icon(
-                            Icons.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = if (currentStep < 3) Color.DarkGray else Color.LightGray
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = {
-                            if (currentStep < totalSteps && isCardDataValid(cardData)) {
-                                if (currentStep == 2) {
-                                    scope.launch {
-                                        viewModel.addCard(cardData)
-                                    }
-                                }
-                                currentStep++
+            StepAppBar(
+                currentStep = currentStep,
+                totalSteps = totalSteps,
+                onBackPressed = { handleBackNavigation() },
+                onNextPressed = {
+                    if (currentStep < totalSteps && isCardDataValid(cardData)) {
+                        if (currentStep == 2) {
+                            scope.launch {
+                                viewModel.addCard(cardData)
                             }
-                        },
-                        enabled = currentStep < totalSteps && isCardDataValid(cardData)
-                    ) {
-                        Icon(
-                            Icons.Filled.ArrowForward,
-                            contentDescription = "Next",
-                            tint = if(isEnabled) Color.DarkGray else Color.LightGray
-                        )
+                        }
+                        currentStep++
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = SlightlyGrey
-                )
+                isNextEnabled = isEnabled,
+                isBackEnabled = currentStep < totalSteps
             )
         }
     ) { paddingValues ->

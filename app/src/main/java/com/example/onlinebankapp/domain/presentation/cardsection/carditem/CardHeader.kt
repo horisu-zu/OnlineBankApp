@@ -199,7 +199,7 @@ fun CardHeader(
             CreditCardButton(onClick = {
                 val intent = Intent(context, OperationActivity::class.java).apply {
                     putExtra("cardId", paymentCardData.cardId)
-                    putExtra("operationType", "TopUp")
+                    putExtra("operationDataId", "top_up")
                 }
                 context.startActivity(intent)
             }, paymentCardData)

@@ -5,8 +5,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -26,7 +24,6 @@ import com.example.onlinebankapp.data.repository.CardRepositoryImpl
 import com.example.onlinebankapp.data.repository.UserRepositoryImpl
 import com.example.onlinebankapp.domain.presentation.auth.AuthNavigator
 import com.example.onlinebankapp.domain.navigation.NavigationItemList
-import com.example.onlinebankapp.domain.operation.operationDataList
 import com.example.onlinebankapp.domain.presentation.AppBar
 import com.example.onlinebankapp.domain.presentation.BottomNavItem
 import com.example.onlinebankapp.domain.presentation.BottomNavigationMenu
@@ -193,7 +190,7 @@ fun HistoryScreen() {
             .fillMaxSize()
             .background(AnotherGray)
     ) {
-        HistoryComponent(operationItems = operationDataList())
+        HistoryComponent(operationItems = emptyList())
     }
 }
 
@@ -226,34 +223,3 @@ fun getTransitions(
         }
     }
 }
-
-/*@Preview(showBackground = true)
-@Composable
-fun PaymentCardPagerPreview() {
-    val items = listOf(
-        PaymentCardData(
-            cardName = "Visa Classic",
-            cardNumber = "1234 5678 9101 1121",
-            expiryDate = "12/23",
-            cvv = "123",
-            currentBalance = 1000f,
-            currency = "UAH",
-            cardType = CardType.VISA,
-            cardColor = Color(0XFF7FFFD4)
-        ),
-        PaymentCardData(
-            cardName = "MasterCard Gold",
-            cardNumber = "1111 2222 3333 4444",
-            expiryDate = "11/24",
-            cvv = "456",
-            currentBalance = 2500.12f,
-            currency = "EUR",
-            cardType = CardType.MASTERCARD,
-            cardColor = Color(0xFF1F93B1)
-        )
-    )
-
-    MaterialTheme {
-        PaymentCardPager(items = items)
-    }
-}*/

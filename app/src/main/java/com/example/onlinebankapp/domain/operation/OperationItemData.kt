@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.operation
 
+import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CurrencyType
@@ -7,6 +8,105 @@ import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.presentation.cardsection.getCardData
 import java.util.Calendar
 import java.util.Date
+
+data class OperationData(
+    val operationId: String,
+    val title: String,
+    @DrawableRes val icon: Int,
+    val iconColor: Color,
+    val operationTypeId: String?
+)
+
+data class OperationType(
+    val typeId: String,
+    val title: String,
+    @DrawableRes val icon: Int,
+    val iconColor: Color,
+)
+
+data class TransactionData(
+    val transactionId: String,
+    val operationTypeId: String,
+    val operationDataId: String,
+    val operationDate: Date,
+    val sourceCardId: String,
+    val destinationCardId: String,
+    val amount: Double,
+    val currency: CurrencyType,
+    val status: String,
+    val description: String?
+)
+
+object OperationTypes {
+    val TOP_UP = OperationType(
+        typeId = "TOP_UP",
+        title = "Top Up",
+        icon = R.drawable.ic_credit,
+        iconColor = Color(0xFF4CAF50)
+    )
+
+    val TRANSFER = OperationType(
+        typeId = "TRANSFER",
+        title = "Transfer",
+        icon = R.drawable.ic_transfer,
+        iconColor = Color(0xFF2196F3)
+    )
+
+    val PAYMENT = OperationType(
+        typeId = "PAYMENT",
+        title = "Payment",
+        icon = R.drawable.ic_payment,
+        iconColor = Color(0xFFFFC107)
+    )
+
+    val all = listOf(TOP_UP, TRANSFER, PAYMENT)
+}
+
+object SampleOperations {
+    val operations = listOf(
+        OperationData(
+            operationId = "top_up",
+            title = "Card Top Up",
+            icon = R.drawable.ic_credit,
+            iconColor = Color(0xFF4CAF50),
+            operationTypeId = OperationTypes.TOP_UP.typeId
+        ),
+
+        OperationData(
+            operationId = "transfer_1",
+            title = "Card Transfer",
+            icon = R.drawable.ic_payment,
+            iconColor = Color(0xFF2196F3),
+            operationTypeId = OperationTypes.TRANSFER.typeId
+        ),
+        OperationData(
+            operationId = "transfer_2",
+            title = "Phone Transfer",
+            icon = R.drawable.ic_phone_transfer,
+            iconColor = Color(0xFF2196F3),
+            operationTypeId = OperationTypes.TRANSFER.typeId
+        ),
+
+        OperationData(
+            operationId = "payment_1",
+            title = "Mobile Payment",
+            icon = R.drawable.ic_phone,
+            iconColor = Color(0xFFFFC107),
+            operationTypeId = OperationTypes.PAYMENT.typeId
+        ),
+        OperationData(
+            operationId = "payment_2",
+            title = "Internet Payment",
+            icon = R.drawable.ic_internet,
+            iconColor = Color(0xFFFFC107),
+            operationTypeId = OperationTypes.PAYMENT.typeId
+        )
+    )
+
+    fun getOperationsByType(typeId: String): List<OperationData> {
+        return operations.filter { it.operationTypeId == typeId }
+    }
+}
 
 data class OperationItemData(
     val operationType: String,
