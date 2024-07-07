@@ -49,8 +49,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.PaymentCardData
-import com.example.onlinebankapp.domain.card.toColor
 import com.example.onlinebankapp.domain.presentation.cardsection.getTextColorForBackground
+import com.example.onlinebankapp.domain.presentation.template.toColor
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.launch
 

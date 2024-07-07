@@ -20,8 +20,8 @@ data class OperationData(
 data class OperationType(
     val typeId: String,
     val title: String,
-    @DrawableRes val icon: Int,
-    val iconColor: Color,
+    @DrawableRes val icon: Int, // R.drawable.nameICon
+    val iconColor: Color, //Color.Black
 )
 
 data class TransactionData(

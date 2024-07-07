@@ -21,9 +21,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.onlinebankapp.data.repository.CardRepositoryImpl
+import com.example.onlinebankapp.data.repository.OperationRepositoryImpl
 import com.example.onlinebankapp.data.repository.UserRepositoryImpl
 import com.example.onlinebankapp.domain.presentation.auth.AuthNavigator
 import com.example.onlinebankapp.domain.navigation.NavigationItemList
+import com.example.onlinebankapp.domain.operation.operationDataList
 import com.example.onlinebankapp.domain.presentation.AppBar
 import com.example.onlinebankapp.domain.presentation.BottomNavItem
 import com.example.onlinebankapp.domain.presentation.BottomNavigationMenu
@@ -32,8 +34,10 @@ import com.example.onlinebankapp.domain.presentation.MainNavigationDrawer
 import com.example.onlinebankapp.domain.presentation.cardsection.OperationList
 import com.example.onlinebankapp.domain.presentation.cardsection.YourCardSection
 import com.example.onlinebankapp.domain.presentation.history.HistoryComponent
+import com.example.onlinebankapp.domain.presentation.service.ServiceScreen
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.exchange.viewModelFactory
+import com.example.onlinebankapp.domain.presentation.viewmodel.operation.OperationViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModelFactory
 import com.example.onlinebankapp.ui.theme.AnotherGray
@@ -88,6 +92,9 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
 
     val cardRepository = CardRepositoryImpl(firestore)
     val cardViewModel = remember { CardViewModel(cardRepository) }
+
+    val operationRepository = OperationRepositoryImpl(firestore)
+    val operationViewModel = remember { OperationViewModel(operationRepository) }
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -150,7 +157,7 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
                         BottomNavItem.History.route,
                         null)()?.let { slideOutOfContainer(it) } }
                 ) {
-                    ServicesScreen()
+                    ServicesScreen(operationViewModel)
                 }
             }
         }
@@ -190,20 +197,23 @@ fun HistoryScreen() {
             .fillMaxSize()
             .background(AnotherGray)
     ) {
-        HistoryComponent(operationItems = emptyList())
+        HistoryComponent(SlightlyGrey, operationDataList())
     }
 }
 
 @Composable
-fun ServicesScreen() {
+fun ServicesScreen(
+    operationViewModel: OperationViewModel
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(SlightlyGrey)
-    ) {}
+    ) {
+        ServiceScreen(operationViewModel = operationViewModel)
+    }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 fun getTransitions(
     route: String,
     leftRoute: String?,

@@ -39,9 +39,8 @@ import com.example.onlinebankapp.AddCardActivity
 import com.example.onlinebankapp.CardInfoActivity
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CardService
-import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.PaymentCardData
-import com.example.onlinebankapp.domain.card.toColor
+import com.example.onlinebankapp.domain.presentation.template.toColor
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState

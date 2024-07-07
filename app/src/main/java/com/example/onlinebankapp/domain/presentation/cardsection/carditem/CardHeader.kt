@@ -48,14 +48,12 @@ import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.CardInfoActivity
 import com.example.onlinebankapp.OperationActivity
 import com.example.onlinebankapp.R
-import com.example.onlinebankapp.domain.card.CardType
-import com.example.onlinebankapp.domain.card.CurrencyType
 import com.example.onlinebankapp.domain.card.PaymentCardData
-import com.example.onlinebankapp.domain.card.toColor
 import com.example.onlinebankapp.domain.presentation.cardsection.addcard.formatCardNumber
 import com.example.onlinebankapp.domain.presentation.cardsection.getCardLogo
 import com.example.onlinebankapp.domain.presentation.cardsection.getTextColorForBackground
 import com.example.onlinebankapp.domain.presentation.cardsection.hideCardNumber
+import com.example.onlinebankapp.domain.presentation.template.toColor
 import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 

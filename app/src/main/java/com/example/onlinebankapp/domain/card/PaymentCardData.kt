@@ -3,6 +3,7 @@ package com.example.onlinebankapp.domain.card
 import android.graphics.Color.parseColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import com.example.onlinebankapp.R
 import java.util.Date
 
 data class PaymentCardData(
@@ -45,16 +46,4 @@ enum class CardType {
 
 enum class CardService {
     VISA, MASTERCARD, AMEX, DISCOVER, OTHER
-}
-
-fun Color.toHexString(): String {
-    return String.format("#%06X", 0xFFFFFF and this.toArgb())
-}
-
-fun String.toColor(): Color {
-    return try {
-        Color(parseColor(this))
-    } catch (e: IllegalArgumentException) {
-        Color.Black
-    }
 }

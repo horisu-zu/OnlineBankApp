@@ -30,11 +30,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -44,12 +40,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
 import com.example.onlinebankapp.AddCardActivity
 import com.example.onlinebankapp.CardInfoActivity
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.PaymentCardData
-import com.example.onlinebankapp.domain.card.toColor
+import com.example.onlinebankapp.domain.presentation.template.toColor
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -164,7 +159,7 @@ fun PaymentCardItem(cardData: PaymentCardData, onCardClick: (String) -> Unit) {
         Card(
             modifier = Modifier
                 .size(width = 96.dp, height = 56.dp)
-                .clickable { onCardClick(cardData.cardName) },
+                .clickable { onCardClick(cardData.cardId) },
             shape = RoundedCornerShape(8.dp),
             elevation = CardDefaults.elevatedCardElevation(2.dp),
         ) {

@@ -47,8 +47,8 @@ import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.PaymentCardData
-import com.example.onlinebankapp.domain.card.toColor
-import com.example.onlinebankapp.domain.card.toHexString
+import com.example.onlinebankapp.domain.presentation.template.toColor
+import com.example.onlinebankapp.domain.presentation.template.toHexString
 import com.example.onlinebankapp.ui.theme.Aquamarine
 import com.example.onlinebankapp.ui.theme.Coral
 import com.example.onlinebankapp.ui.theme.Lavender

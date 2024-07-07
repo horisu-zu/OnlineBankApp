@@ -12,19 +12,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.operation.OperationItemData
+import com.example.onlinebankapp.domain.presentation.template.ItemDivider
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import java.text.ParseException
@@ -36,6 +35,7 @@ import java.util.Locale
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryComponent(
+    backgroundColor: Color,
     operationItems: List<OperationItemData>
 ) {
     val groupedOperations = groupOperationsByDate(operationItems)
@@ -48,14 +48,7 @@ fun HistoryComponent(
             itemsIndexed(operations) { index, operation ->
                 HistoryItem(operationItemData = operation)
                 if (index < operations.size - 1) {
-                    Divider(
-                        color = Color.Gray,
-                        thickness = 1.dp,
-                        modifier = Modifier
-                            .background(SlightlyGrey)
-                            .padding(start = 80.dp, end = 18.dp)
-                            .alpha(0.5f)
-                    )
+                    ItemDivider(backgroundColor = backgroundColor)
                 }
             }
         }

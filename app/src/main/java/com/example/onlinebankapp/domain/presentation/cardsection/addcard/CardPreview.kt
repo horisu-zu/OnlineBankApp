@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.PaymentCardData
-import com.example.onlinebankapp.domain.card.toColor
 import com.example.onlinebankapp.domain.presentation.cardsection.getCardLogo
 import com.example.onlinebankapp.domain.presentation.cardsection.getTextColorForBackground
+import com.example.onlinebankapp.domain.presentation.template.toColor
 
 @Composable
 fun CardPreview(
