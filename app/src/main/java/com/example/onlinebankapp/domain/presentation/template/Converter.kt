@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.presentation.template
 
+import android.graphics.Color.parseColor
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import com.example.onlinebankapp.R
@@ -19,7 +20,15 @@ fun Color.toHexString(): String {
 
 fun String.toColor(): Color {
     return try {
-        Color(android.graphics.Color.parseColor(this))
+        when {
+            startsWith("0x", ignoreCase = true) -> {
+                val colorLong = this.substring(2).toLong(16)
+                Color(colorLong.toInt())
+            }
+            else -> {
+                Color(parseColor(this))
+            }
+        }
     } catch (e: IllegalArgumentException) {
         Color.Black
     }

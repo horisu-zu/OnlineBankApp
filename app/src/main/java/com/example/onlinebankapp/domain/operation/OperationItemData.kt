@@ -58,8 +58,6 @@ object OperationTypes {
         icon = R.drawable.ic_payment,
         iconColor = Color(0xFFFFC107)
     )
-
-    val all = listOf(TOP_UP, TRANSFER, PAYMENT)
 }
 
 object SampleOperations {
@@ -73,22 +71,22 @@ object SampleOperations {
         ),
 
         OperationData(
-            operationId = "transfer_1",
+            operationId = "card_transfer",
             title = "Card Transfer",
             icon = R.drawable.ic_payment,
             iconColor = Color(0xFF2196F3),
             operationTypeId = OperationTypes.TRANSFER.typeId
         ),
         OperationData(
-            operationId = "transfer_2",
+            operationId = "phone_transfer",
             title = "Phone Transfer",
             icon = R.drawable.ic_phone_transfer,
-            iconColor = Color(0xFF2196F3),
+            iconColor = Color(0xFFFFC107),
             operationTypeId = OperationTypes.TRANSFER.typeId
         ),
 
         OperationData(
-            operationId = "payment_1",
+            operationId = "mobile_payment",
             title = "Mobile Payment",
             icon = R.drawable.ic_phone,
             iconColor = Color(0xFFFFC107),

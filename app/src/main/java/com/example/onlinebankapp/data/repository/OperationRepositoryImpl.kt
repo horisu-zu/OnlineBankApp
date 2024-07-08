@@ -24,11 +24,21 @@ class OperationRepositoryImpl(
                 .await()
 
             val operations = querySnapshot.documents.mapNotNull { documentSnapshot ->
-                documentSnapshot.toObject(OperationData::class.java)
+                val data = documentSnapshot.data
+                data?.let {
+                    OperationData(
+                        operationId = data["operationId"] as String,
+                        title = data["title"] as String,
+                        icon = (data["icon"] as String).toDrawableRes(),
+                        iconColor = (data["iconColor"] as String).toColor(),
+                        operationTypeId = data["operationTypeId"] as String
+                    )
+                }
             }
             emit(Resource.Success(operations))
         } catch (e: Exception) {
             emit(Resource.Error(e.message ?: "Unknown error"))
+            Log.e("Error", e.message.toString())
         }
     }
 
@@ -44,11 +54,11 @@ class OperationRepositoryImpl(
                 val data = documentSnapshot.data
                 data?.let {
                     OperationData(
-                        operationId = it["operationId"] as String,
-                        title = it["title"] as String,
-                        icon = (it["icon"] as String).toDrawableRes(),
-                        iconColor = (it["iconColor"] as String).toColor(),
-                        operationTypeId = it["operationTypeId"] as String
+                        operationId = data["operationId"] as String,
+                        title = data["title"] as String,
+                        icon = (data["icon"] as String).toDrawableRes(),
+                        iconColor = (data["iconColor"] as String).toColor(),
+                        operationTypeId = data["operationTypeId"] as String
                     )
                 }
             }
