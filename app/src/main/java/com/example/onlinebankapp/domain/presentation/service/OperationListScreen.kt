@@ -44,7 +44,7 @@ fun OperationListScreen(
     when(operations) {
         is Resource.Loading -> {
             LazyColumn {
-                items(10) {
+                items(3) {
                     ShimmerOperationItem()
                     ItemDivider(backgroundColor = SlightlyGrey)
                 }

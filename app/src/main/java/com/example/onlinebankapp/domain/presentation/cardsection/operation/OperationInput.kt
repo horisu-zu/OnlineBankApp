@@ -10,12 +10,18 @@ import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewMode
 @Composable
 fun OperationInput(
     operationData: OperationData,
-    cardData: PaymentCardData,
+    cardData: List<PaymentCardData>,
     inputAmount: String,
-    onAmountEntered: (String) -> Unit
+    initialCardIndex: Int,
+    onAmountEntered: (String, PaymentCardData) -> Unit
 ) {
     when (operationData.operationId) {
-        "top_up" -> TopUpOperationInput(cardData, inputAmount, onAmountEntered)
+        "top_up" -> TopUpOperationInput(
+            cardData = cardData,
+            initialCardIndex = initialCardIndex,
+            inputAmount = inputAmount,
+            onAmountEntered = onAmountEntered
+        )
         else -> {}
         /*is OperationType.Transfer -> TransferInputContent(cardData, viewModel)
         is OperationType.Payment -> PaymentInputContent(cardData, viewModel)*/

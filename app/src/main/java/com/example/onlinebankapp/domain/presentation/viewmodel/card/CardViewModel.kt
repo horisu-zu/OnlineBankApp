@@ -10,6 +10,7 @@ import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.CardType
 import com.example.onlinebankapp.domain.card.CurrencyType
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.operation.OperationType
 import com.example.onlinebankapp.domain.presentation.cardsection.addcard.getCardServiceFromNumber
 import com.example.onlinebankapp.domain.repository.CardRepository
 import com.example.onlinebankapp.domain.util.Resource
@@ -74,8 +75,24 @@ class CardViewModel(private val cardRepository: CardRepository) : ViewModel() {
         getCardServiceFromNumber(_cardData.value.cardNumber)
     }
 
-    fun updateCardData(newData: PaymentCardData) {
-        _cardData.value = newData
+    fun updateCardData(cardData: PaymentCardData) {
+        viewModelScope.launch {
+            cardRepository.updateCard(cardData.cardId, cardData).collect { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _cardData.value = cardData
+                        Log.d("CardViewModel", "Card data updated successfully." +
+                                " New value: ${_cardData.value}")
+                    }
+                    is Resource.Error -> {
+                        Log.e("CardViewModel", "Error updating card: ${result.message}")
+                    }
+                    is Resource.Loading -> {
+                        Log.d("CardViewModel", "Updating card data in progress...")
+                    }
+                }
+            }
+        }
     }
 
     fun addCard(cardData: PaymentCardData) {

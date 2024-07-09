@@ -46,6 +46,7 @@ import com.example.onlinebankapp.domain.presentation.template.InputField
 import com.example.onlinebankapp.domain.presentation.template.OperationButton
 import com.example.onlinebankapp.domain.presentation.template.StepAppBar
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
+import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.launch
@@ -55,6 +56,8 @@ fun OperationScreen(
     operationData: OperationData,
     onBackPressed: () -> Unit,
     viewModel: CardViewModel,
+    userCards: List<PaymentCardData>,
+    initialCardIndex: Int,
     modifier: Modifier = Modifier
 ) {
     var currentStep by remember { mutableIntStateOf(1) }
@@ -62,7 +65,8 @@ fun OperationScreen(
 
     val totalSteps = 3
     val scope = rememberCoroutineScope()
-    val cardData by viewModel.cardData.collectAsState()
+    val cardState by viewModel.cardData.collectAsState()
+    var cardData by remember { mutableStateOf(cardState) }
 
     Log.e("SCREEN", operationData.operationId)
 
@@ -79,18 +83,13 @@ fun OperationScreen(
                 },
                 onNextPressed = {
                     if (currentStep < totalSteps) {
-                        if (currentStep == 2) {
-                            scope.launch {
-                                viewModel.updateCardData(cardData)
-                            }
-                        }
                         currentStep++
                     }
                     else onBackPressed()
                 },
                 isNextEnabled = when (currentStep) {
-                    1, 3 -> false
-                    else -> true
+                    3 -> true
+                    else -> false
                 },
                 isBackEnabled = currentStep < totalSteps
             )
@@ -113,18 +112,20 @@ fun OperationScreen(
                 )
             ) {
                 when (currentStep) {
-                    1 -> OperationInput(operationData, cardData, inputAmount) { newAmount ->
+                    1 -> OperationInput(operationData, userCards, inputAmount, initialCardIndex
+                    ) { newAmount, selectedCardData ->
                         inputAmount = newAmount
+                        cardData = selectedCardData
                         currentStep++
                     }
-                    2 -> OperationConfirm(operationData, viewModel, inputAmount) {
-                        currentStep++
-                    }
-                    3 -> OperationResult(cardData) {
+                    2 -> OperationConfirm(operationData, cardData, inputAmount) { newCardData ->
                         scope.launch {
-                            viewModel.updateCardData(cardData)
+                            viewModel.updateCardData(newCardData)
                         }
+                        cardData = newCardData
+                        currentStep++
                     }
+                    3 -> OperationResult(cardData)
                 }
             }
         }

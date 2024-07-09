@@ -100,10 +100,6 @@ object SampleOperations {
             operationTypeId = OperationTypes.PAYMENT.typeId
         )
     )
-
-    fun getOperationsByType(typeId: String): List<OperationData> {
-        return operations.filter { it.operationTypeId == typeId }
-    }
 }
 
 data class OperationItemData(

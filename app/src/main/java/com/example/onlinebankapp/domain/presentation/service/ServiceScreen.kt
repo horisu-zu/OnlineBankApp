@@ -26,20 +26,19 @@ fun ServiceScreen(
     NavHost(navController, startDestination = "serviceList") {
         composable(
             route = "serviceList",
-            enterTransition = { slideTransitionEnter(SlideDirection.Left) },
-            exitTransition = { slideTransitionExit(SlideDirection.Left) },
-            popEnterTransition = { slideTransitionEnter(SlideDirection.Right) },
-            popExitTransition = { slideTransitionExit(SlideDirection.Right) }
+            enterTransition = { slideInTransition(AnimatedContentTransitionScope.SlideDirection.Left) },
+            exitTransition = { slideOutTransition(AnimatedContentTransitionScope.SlideDirection.Left) },
+            popEnterTransition = { slideInTransition(AnimatedContentTransitionScope.SlideDirection.Right) },
+            popExitTransition = { slideOutTransition(AnimatedContentTransitionScope.SlideDirection.Right) }
         ) {
             ServicesListScreen(navController, operationViewModel)
         }
-
         composable(
             route = "operationList/{typeId}",
-            enterTransition = { slideTransitionEnter(SlideDirection.Left) },
-            exitTransition = { slideTransitionExit(SlideDirection.Left) },
-            popEnterTransition = { slideTransitionEnter(SlideDirection.Right) },
-            popExitTransition = { slideTransitionExit(SlideDirection.Right) }
+            enterTransition = { slideInTransition(AnimatedContentTransitionScope.SlideDirection.Left) },
+            exitTransition = { slideOutTransition(AnimatedContentTransitionScope.SlideDirection.Left) },
+            popEnterTransition = { slideInTransition(AnimatedContentTransitionScope.SlideDirection.Right) },
+            popExitTransition = { slideOutTransition(AnimatedContentTransitionScope.SlideDirection.Right) }
         ) { backStackEntry ->
             OperationListScreen(
                 typeId = backStackEntry.arguments?.getString("typeId") ?: "",
@@ -50,25 +49,21 @@ fun ServiceScreen(
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-fun slideTransitionEnter(
-    towards: SlideDirection
+fun AnimatedContentTransitionScope<*>.slideInTransition(
+    towards: AnimatedContentTransitionScope.SlideDirection
 ): EnterTransition {
-    return when (towards) {
-        SlideDirection.Left -> slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300))
-        SlideDirection.Right -> slideInHorizontally(initialOffsetX = { -it }, animationSpec = tween(300))
-    }
+    return slideIntoContainer(
+        towards = towards,
+        animationSpec = tween(300)
+    )
 }
 
 @OptIn(ExperimentalAnimationApi::class)
-fun slideTransitionExit(
-    towards: SlideDirection
+fun AnimatedContentTransitionScope<*>.slideOutTransition(
+    towards: AnimatedContentTransitionScope.SlideDirection
 ): ExitTransition {
-    return when (towards) {
-        SlideDirection.Left -> slideOutHorizontally(targetOffsetX = { -it }, animationSpec = tween(300))
-        SlideDirection.Right -> slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300))
-    }
-}
-
-enum class SlideDirection {
-    Left, Right
+    return slideOutOfContainer(
+        towards = towards,
+        animationSpec = tween(300)
+    )
 }

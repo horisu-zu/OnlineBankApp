@@ -4,12 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,19 +19,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.onlinebankapp.domain.card.PaymentCardData
+import com.example.onlinebankapp.domain.presentation.cardsection.PaymentCard
 import com.example.onlinebankapp.domain.presentation.template.CurrencyCard
 import com.example.onlinebankapp.domain.presentation.template.InputField
 import com.example.onlinebankapp.domain.presentation.template.OperationButton
-import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
 import com.example.onlinebankapp.ui.theme.AnotherGray
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun TopUpOperationInput(
-    cardData: PaymentCardData,
+    cardData: List<PaymentCardData>,
+    initialCardIndex: Int,
     inputAmount: String,
-    onAmountEntered: (String) -> Unit
+    onAmountEntered: (String, PaymentCardData) -> Unit
 ) {
     var localInputAmount by remember { mutableStateOf(inputAmount) }
+    val pagerState = rememberPagerState(initialPage = initialCardIndex)
+    val selectedIndex = pagerState.currentPage
+    val selectedCard = cardData[selectedIndex]
 
     Card(
         modifier = Modifier
@@ -48,6 +56,19 @@ fun TopUpOperationInput(
                 .padding(vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            HorizontalPager(
+                count = cardData.size,
+                state = pagerState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(220.dp)
+            ) {page ->
+                PaymentCard(paymentCardData = cardData[page],
+                    isSelected = page == selectedIndex,
+                    onCardClick = {}
+                )
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -62,10 +83,10 @@ fun TopUpOperationInput(
                     keyboardType = KeyboardType.Number,
                     modifier = Modifier.weight(1f)
                 )
-                CurrencyCard(paymentCardData = cardData)
+                CurrencyCard(paymentCardData = selectedCard)
             }
             OperationButton(
-                onClick = { onAmountEntered(localInputAmount) },
+                onClick = { onAmountEntered(localInputAmount, selectedCard)},
                 enabled = localInputAmount.isNotEmpty()
             )
         }

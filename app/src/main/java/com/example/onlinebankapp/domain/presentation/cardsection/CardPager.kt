@@ -106,7 +106,7 @@ fun PaymentCard(
             .scale(cardSize)
             .clickable { onCardClick(paymentCardData.cardId) },
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.elevatedCardElevation(6.dp),
+        elevation = CardDefaults.elevatedCardElevation(3.dp),
         /*colors = CardDefaults.cardColors(
             containerColor = paymentCardData.cardColor
         )*/
@@ -188,7 +188,7 @@ fun AddNewCard(
             .padding(12.dp, 8.dp)
             .scale(cardSize),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.elevatedCardElevation(6.dp)
+        elevation = CardDefaults.elevatedCardElevation(3.dp)
     ) {
         Box(
             modifier = Modifier

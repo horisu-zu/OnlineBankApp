@@ -13,6 +13,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -21,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.operation.OperationData
 import com.example.onlinebankapp.domain.presentation.template.OperationButton
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
@@ -29,11 +31,13 @@ import com.example.onlinebankapp.ui.theme.AnotherGray
 @Composable
 fun OperationConfirm(
     operationData: OperationData,
-    cardViewModel: CardViewModel,
+    cardData: PaymentCardData,
     inputAmount: String,
-    onConfirmClick: () -> Unit
+    onConfirmClick: (PaymentCardData) -> Unit
 ) {
-    val cardData by cardViewModel.cardData.collectAsState()
+    val amount = inputAmount.toFloatOrNull() ?: 0f
+    val newBalance = calculateNewBalance(cardData.currentBalance, amount, operationData)
+    val newCardData = cardData.copy(currentBalance = newBalance)
 
     Card(
         modifier = Modifier
@@ -53,15 +57,22 @@ fun OperationConfirm(
             Text(text = "Card Name: ${cardData.cardName}", color = Color.DarkGray)
             Text(text = "Card Number: ${cardData.cardNumber.takeLast(4)
                 .padStart(cardData.cardNumber.length, '*')}", color = Color.DarkGray)
-            DashedDivider()
+            DashedDivider(color = Color.DarkGray)
             Text( text = "Operation Data: ${operationData.title}", color = Color.DarkGray)
             Text( text = "Amount: $inputAmount", color = Color.DarkGray)
             Text( text = "Currency: ${cardData.currency}", color = Color.DarkGray)
             OperationButton(
-                onClick = { onConfirmClick() },
+                onClick = { onConfirmClick(newCardData) },
                 enabled = true
             )
         }
+    }
+}
+
+private fun calculateNewBalance(currentBalance: Float, amount: Float, operationData: OperationData): Float {
+    return when (operationData.operationId) {
+        "top_up" -> currentBalance + amount
+        else -> currentBalance - amount
     }
 }
 

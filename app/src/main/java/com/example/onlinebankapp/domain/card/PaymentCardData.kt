@@ -14,7 +14,7 @@ data class PaymentCardData(
     val expiryMonth: String,
     val expiryYear: String,
     val cvv: String,
-    val currentBalance: Float,
+    var currentBalance: Float,
     val currency: CurrencyType,
     val cardService: CardService,
     val cardType: CardType,
