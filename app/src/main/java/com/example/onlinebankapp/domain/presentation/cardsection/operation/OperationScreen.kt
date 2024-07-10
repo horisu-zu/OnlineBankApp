@@ -1,31 +1,16 @@
 package com.example.onlinebankapp.domain.presentation.cardsection.operation
 
-import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,20 +18,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.operation.OperationData
-import com.example.onlinebankapp.domain.operation.OperationType
-import com.example.onlinebankapp.domain.presentation.template.CurrencyCard
-import com.example.onlinebankapp.domain.presentation.template.InputField
-import com.example.onlinebankapp.domain.presentation.template.OperationButton
+import com.example.onlinebankapp.domain.presentation.auth.ErrorToast
 import com.example.onlinebankapp.domain.presentation.template.StepAppBar
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
-import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import kotlinx.coroutines.launch
@@ -65,10 +42,17 @@ fun OperationScreen(
 
     val totalSteps = 3
     val scope = rememberCoroutineScope()
-    val cardState by viewModel.cardData.collectAsState()
-    var cardData by remember { mutableStateOf(cardState) }
+    var sourceCardData by remember { mutableStateOf<PaymentCardData?>(null) }
+    var destinationCardData by remember { mutableStateOf<PaymentCardData?>(null) }
 
-    Log.e("SCREEN", operationData.operationId)
+    var showToast by remember { mutableStateOf(false) }
+    var toastMessage by remember { mutableStateOf("") }
+
+    ErrorToast(
+        message = toastMessage,
+        isVisible = showToast,
+        onDismiss = { showToast = false }
+    )
 
     Scaffold(
         topBar = {
@@ -112,22 +96,93 @@ fun OperationScreen(
                 )
             ) {
                 when (currentStep) {
-                    1 -> OperationInput(operationData, userCards, inputAmount, initialCardIndex
-                    ) { newAmount, selectedCardData ->
+                    1 -> OperationInput(
+                        operationData,
+                        userCards,
+                        inputAmount,
+                        initialCardIndex
+                    ) { newAmount, selectedSourceCard, selectedDestinationCard ->
                         inputAmount = newAmount
-                        cardData = selectedCardData
-                        currentStep++
-                    }
-                    2 -> OperationConfirm(operationData, cardData, inputAmount) { newCardData ->
-                        scope.launch {
-                            viewModel.updateCardData(newCardData)
+                        sourceCardData = selectedSourceCard
+                        destinationCardData = selectedDestinationCard
+                        val result = processOperation(
+                            operationData,
+                            selectedSourceCard,
+                            selectedDestinationCard,
+                            newAmount.toFloatOrNull() ?: 0f
+                        )
+                        if (result.isSuccess) {
+                            val (newSourceCard, newDestinationCard) = result.getOrNull()!!
+                            sourceCardData = newSourceCard
+                            destinationCardData = newDestinationCard
+                            currentStep++
+                        } else {
+                            toastMessage = result.exceptionOrNull()?.message.toString()
+                            showToast = true
                         }
-                        cardData = newCardData
+                    }
+                    2 -> OperationConfirm(
+                        operationData,
+                        sourceCardData!!,
+                        destinationCardData,
+                        inputAmount
+                    ) {
+                        scope.launch {
+                            viewModel.updateCardData(sourceCardData!!)
+                            destinationCardData?.let { viewModel.updateCardData(it) }
+                        }
                         currentStep++
                     }
-                    3 -> OperationResult(cardData)
+                    3 -> OperationResult(sourceCardData!!, destinationCardData)
                 }
             }
         }
+        ErrorToast(
+            message = toastMessage,
+            isVisible = showToast,
+            onDismiss = { showToast = false },
+            modifier = Modifier.padding(top = 60.dp)
+        )
+    }
+}
+
+private fun processOperation(
+    operationData: OperationData,
+    sourceCard: PaymentCardData,
+    destinationCard: PaymentCardData?,
+    amount: Float
+): Result<Pair<PaymentCardData, PaymentCardData?>> {
+    return when (operationData.operationTypeId) {
+        "TOP_UP" -> {
+            val newBalance = sourceCard.currentBalance + amount
+            Result.success(Pair(sourceCard.copy(currentBalance = newBalance), null))
+        }
+        "PAYMENT" -> {
+            if (amount > sourceCard.currentBalance) {
+                Result.failure(Exception("Insufficient funds"))
+            } else {
+                val newBalance = sourceCard.currentBalance - amount
+                Result.success(Pair(sourceCard.copy(currentBalance = newBalance), null))
+            }
+        }
+        "TRANSFER" -> {
+            if (destinationCard == null || destinationCard == sourceCard) {
+                Result.failure(Exception("Destination card is missing"))
+            } else if (amount > sourceCard.currentBalance) {
+                Result.failure(Exception("Insufficient funds"))
+            } else if(destinationCard.currency != sourceCard.currency) {
+                Result.failure(Exception("Transfer between different currencies currently isn't working"))
+            } else {
+                val newSourceBalance = sourceCard.currentBalance - amount
+                val newDestinationBalance = destinationCard.currentBalance + amount
+                Result.success(
+                    Pair(
+                        sourceCard.copy(currentBalance = newSourceBalance),
+                        destinationCard.copy(currentBalance = newDestinationBalance)
+                    )
+                )
+            }
+        }
+        else -> Result.failure(Exception("Unknown operation"))
     }
 }

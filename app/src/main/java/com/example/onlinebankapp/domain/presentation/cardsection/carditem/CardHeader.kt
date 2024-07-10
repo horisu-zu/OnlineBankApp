@@ -131,7 +131,7 @@ fun CardHeader(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${paymentCardData.expiryMonth}/${paymentCardData.expiryYear}",
+                    text = "${paymentCardData.expiryMonth}/${paymentCardData.expiryYear.takeLast(2)}",
                     color = textColor,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,

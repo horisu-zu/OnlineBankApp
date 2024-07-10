@@ -1,6 +1,8 @@
 package com.example.onlinebankapp.domain.presentation.service
 
+import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,11 +21,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.onlinebankapp.OperationActivity
 import com.example.onlinebankapp.domain.operation.OperationData
 import com.example.onlinebankapp.domain.presentation.history.getSoftColor
 import com.example.onlinebankapp.domain.presentation.template.ItemDivider
@@ -36,6 +42,8 @@ fun OperationListScreen(
     operationViewModel: OperationViewModel
 ) {
     val operations by operationViewModel.operationState.collectAsState()
+
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         operationViewModel.getOperations(typeId)
@@ -55,7 +63,13 @@ fun OperationListScreen(
                 LazyColumn {
                     itemsIndexed(typesList) { index, operationData ->
                         OperationItem(
-                            operationData = operationData
+                            operationData = operationData,
+                            onClick = {operationId ->
+                                val intent = Intent(context, OperationActivity::class.java).apply {
+                                    putExtra("operationDataId", operationId)
+                                }
+                                context.startActivity(intent)
+                            }
                         )
                         if (index < typesList.size - 1) {
                             ItemDivider(backgroundColor = SlightlyGrey)
@@ -76,13 +90,16 @@ fun OperationListScreen(
 @Composable
 fun OperationItem(
     operationData: OperationData,
+    onClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .background(SlightlyGrey)
             .padding(horizontal = 18.dp, vertical = 12.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(6.dp))
+            .clickable { onClick(operationData.operationId) },
         horizontalArrangement = Arrangement.spacedBy(18.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically
     ) {

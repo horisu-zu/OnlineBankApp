@@ -15,12 +15,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.example.onlinebankapp.data.repository.CardRepositoryImpl
+import com.example.onlinebankapp.data.repository.OperationRepositoryImpl
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.operation.OperationData
 import com.example.onlinebankapp.domain.operation.OperationType
 import com.example.onlinebankapp.domain.operation.SampleOperations
 import com.example.onlinebankapp.domain.presentation.cardsection.operation.OperationScreen
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
+import com.example.onlinebankapp.domain.presentation.viewmodel.operation.OperationViewModel
 import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -30,45 +32,60 @@ class OperationActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val cardId = intent.getStringExtra("cardId") ?: return
+        val cardId = intent.getStringExtra("cardId") ?: ""
         val operationDataId = intent.getStringExtra("operationDataId") ?: return
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-
-        val operationData = SampleOperations.operations.find {
-            it.operationId == operationDataId
-        } ?: return
 
         setContent {
             OnlineBankAppTheme {
                 val firestore = FirebaseFirestore.getInstance()
                 val cardRepository = CardRepositoryImpl(firestore)
+                val operationRepository = OperationRepositoryImpl(firestore)
                 val cardViewModel = remember { CardViewModel(cardRepository) }
+                val operationViewModel = remember { OperationViewModel(operationRepository) }
 
                 LaunchedEffect(userId) {
                     cardViewModel.setUserId(userId.toString())
+                    operationViewModel.getOperations()
                 }
 
                 val userCardsResource by cardViewModel.userCards.collectAsState()
+                val operationsResource by operationViewModel.operationState.collectAsState()
 
-                when (val resource = userCardsResource) {
-                    is Resource.Loading -> {}
+                when (val cardsResource = userCardsResource) {
+                    is Resource.Loading -> {
+                    }
                     is Resource.Success -> {
-                        val userCards = resource.data ?: emptyList()
-                        Log.d("OperationActivity", "Cards loaded successfully: $userCards")
-                        val initialCardIndex =
-                            userCards.indexOfFirst { it.cardId == cardId }.takeIf { it != -1 } ?: 0
-                        OperationScreen(
-                            operationData = operationData,
-                            onBackPressed = { onBackPressed() },
-                            viewModel = cardViewModel,
-                            userCards = userCards,
-                            initialCardIndex = initialCardIndex
-                        )
+                        val userCards = cardsResource.data ?: emptyList()
+                        val initialCardIndex = userCards.indexOfFirst{
+                            it.cardId == cardId
+                        }.takeIf { it != -1 } ?: 0
+
+                        when (val opsResource = operationsResource) {
+                            is Resource.Loading -> {
+                            }
+                            is Resource.Success -> {
+                                val operations = opsResource.data ?: emptyList()
+                                val operationData = operations.find { it.operationId == operationDataId }
+                                if (operationData != null) {
+                                    OperationScreen(
+                                        operationData = operationData,
+                                        onBackPressed = { onBackPressed() },
+                                        viewModel = cardViewModel,
+                                        userCards = userCards,
+                                        initialCardIndex = initialCardIndex
+                                    )
+                                } else {
+                                    Text("Operation not found")
+                                }
+                            }
+                            is Resource.Error -> {
+                                Text("Error loading operations: ${opsResource.message}")
+                            }
+                        }
                     }
                     is Resource.Error -> {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            Text("Error loading cards: ${resource.message}")
-                        }
+                        Text("Error loading cards: ${cardsResource.message}")
                     }
                 }
             }

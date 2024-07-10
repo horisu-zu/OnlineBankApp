@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ErrorToast(message: String, isVisible: Boolean, onDismiss: () -> Unit) {
+fun ErrorToast(message: String, isVisible: Boolean, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     AnimatedVisibility(
         visible = isVisible,
         enter = fadeIn(animationSpec = tween(600)) +
@@ -41,7 +41,7 @@ fun ErrorToast(message: String, isVisible: Boolean, onDismiss: () -> Unit) {
                 )
     ) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.TopCenter
         ) {
             Card(

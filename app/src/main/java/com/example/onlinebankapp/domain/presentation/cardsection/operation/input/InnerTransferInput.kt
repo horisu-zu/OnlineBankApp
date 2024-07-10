@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.presentation.cardsection.operation.input
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +19,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.onlinebankapp.domain.card.PaymentCardData
@@ -33,25 +37,28 @@ import com.google.accompanist.pager.rememberPagerState
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun TopUpOperationInput(
+fun InnerTransferInput(
     cardData: List<PaymentCardData>,
-    initialCardIndex: Int,
+    initialSourceCardIndex: Int,
+    initialDestinationCardIndex: Int,
     inputAmount: String,
-    onAmountEntered: (String, PaymentCardData, PaymentCardData?) -> Unit
+    onAmountEntered: (String, PaymentCardData, PaymentCardData) -> Unit
 ) {
     var localInputAmount by remember { mutableStateOf(inputAmount) }
-    val pagerState = rememberPagerState(initialPage = initialCardIndex)
-    val selectedIndex = pagerState.currentPage
-    val selectedCard = cardData[selectedIndex]
+    val sourcePagerState = rememberPagerState(initialPage = initialSourceCardIndex)
+    val destinationPagerState = rememberPagerState(initialPage = initialDestinationCardIndex)
+
+    val selectedSourceIndex = sourcePagerState.currentPage
+    val selectedDestinationIndex = destinationPagerState.currentPage
+    val selectedSourceCard = cardData[selectedSourceIndex]
+    val selectedDestinationCard = cardData[selectedDestinationIndex]
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = AnotherGray
-        )
+        colors = CardDefaults.cardColors(containerColor = AnotherGray)
     ) {
         Column(
             modifier = Modifier
@@ -59,6 +66,7 @@ fun TopUpOperationInput(
                 .padding(vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            Text("From:", fontWeight = FontWeight.SemiBold, color = Color.DarkGray)
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -69,13 +77,37 @@ fun TopUpOperationInput(
             ) {
                 HorizontalPager(
                     count = cardData.size,
-                    state = pagerState,
+                    state = sourcePagerState,
                     modifier = Modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                ) {page ->
-                    SmallPaymentCard(cardData = cardData[page],
-                        isSelected = page == selectedIndex
+                ) { page ->
+                    SmallPaymentCard(
+                        cardData = cardData[page],
+                        isSelected = page == selectedSourceIndex
+                    )
+                }
+            }
+
+            Text("To:", fontWeight = FontWeight.SemiBold, color = Color.DarkGray)
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = SlightlyGrey
+                )
+            ) {
+                HorizontalPager(
+                    count = cardData.size,
+                    state = destinationPagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) { page ->
+                    SmallPaymentCard(
+                        cardData = cardData[page],
+                        isSelected = page == selectedDestinationIndex
                     )
                 }
             }
@@ -94,11 +126,14 @@ fun TopUpOperationInput(
                     keyboardType = KeyboardType.Number,
                     modifier = Modifier.weight(1f)
                 )
-                CurrencyCard(paymentCardData = selectedCard)
+                CurrencyCard(paymentCardData = selectedSourceCard)
             }
+
             OperationButton(
-                onClick = { onAmountEntered(localInputAmount, selectedCard, null)},
-                enabled = localInputAmount.isNotEmpty()
+                onClick = {
+                    onAmountEntered(localInputAmount, selectedSourceCard, selectedDestinationCard)
+                },
+                enabled = localInputAmount.isNotEmpty() && selectedSourceIndex != selectedDestinationIndex
             )
         }
     }

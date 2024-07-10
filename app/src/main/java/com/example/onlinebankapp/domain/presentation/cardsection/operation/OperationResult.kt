@@ -17,12 +17,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.card.PaymentCardData
-import com.example.onlinebankapp.domain.presentation.service.ErrorCard
-import com.example.onlinebankapp.domain.util.Resource
 
 @Composable
 fun OperationResult(
-    cardData: PaymentCardData
+    cardData: PaymentCardData,
+    destinationCardData: PaymentCardData?
 ) {
     Column(
         modifier = Modifier
