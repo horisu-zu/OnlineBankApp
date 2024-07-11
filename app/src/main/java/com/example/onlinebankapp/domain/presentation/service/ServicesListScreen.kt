@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.presentation.service
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -34,12 +35,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.onlinebankapp.OperationActivity
 import com.example.onlinebankapp.domain.operation.OperationType
 import com.example.onlinebankapp.domain.presentation.history.getSoftColor
 import com.example.onlinebankapp.domain.presentation.shimmerEffect
@@ -54,6 +57,7 @@ fun ServicesListScreen(
     operationViewModel: OperationViewModel
 ) {
     val operationTypes by operationViewModel.typeState.collectAsState()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         operationViewModel.getOperations()
@@ -75,8 +79,15 @@ fun ServicesListScreen(
                         OperationTypeItem(
                             operationType = operationType,
                             operationViewModel = operationViewModel,
-                            onClick = { typeId ->
-                                navController.navigate("operationList/$typeId")
+                            onClick = { typeId, operationId ->
+                                if (operationId != null) {
+                                    val intent = Intent(context, OperationActivity::class.java).apply {
+                                        putExtra("operationDataId", operationId)
+                                    }
+                                    context.startActivity(intent)
+                                } else {
+                                    navController.navigate("operationList/$typeId")
+                                }
                             }
                         )
                         if (index < typesList.size - 1) {
@@ -99,11 +110,14 @@ fun ServicesListScreen(
 fun OperationTypeItem(
     operationType: OperationType,
     operationViewModel: OperationViewModel,
-    onClick: (String) -> Unit,
+    onClick: (String, String?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val operationCount by operationViewModel.getOperationsCountForType(operationType.typeId)
         .collectAsState(initial = 0)
+
+    val singleOperationId by operationViewModel.getSingleOperationIdForType(operationType.typeId)
+        .collectAsState(initial = null)
 
     Row(
         modifier = modifier
@@ -111,7 +125,7 @@ fun OperationTypeItem(
             .padding(horizontal = 18.dp, vertical = 12.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(6.dp))
-            .clickable { onClick(operationType.typeId) },
+            .clickable { onClick(operationType.typeId, singleOperationId) },
         horizontalArrangement = Arrangement.spacedBy(18.dp, Alignment.Start),
         verticalAlignment = Alignment.CenterVertically
     ) {

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -50,6 +51,17 @@ class OperationViewModel(private val operationRepository: OperationRepository): 
         }.stateIn(viewModelScope, SharingStarted.Lazily, 0)
     }
 
+    fun getSingleOperationIdForType(typeId: String): StateFlow<String?> {
+        return operationState.map { state ->
+            when (state) {
+                is Resource.Success -> {
+                    val operations = state.data!!.filter { it.operationTypeId == typeId }
+                    if (operations.size == 1) operations.first().operationId else null
+                }
+                else -> null
+            }
+        }.stateIn(viewModelScope, SharingStarted.Lazily, null)
+    }
 
     fun getOperationTypes() {
         viewModelScope.launch {

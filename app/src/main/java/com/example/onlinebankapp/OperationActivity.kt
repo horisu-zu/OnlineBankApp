@@ -11,15 +11,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import com.example.onlinebankapp.data.repository.CardRepositoryImpl
 import com.example.onlinebankapp.data.repository.OperationRepositoryImpl
-import com.example.onlinebankapp.domain.card.PaymentCardData
-import com.example.onlinebankapp.domain.operation.OperationData
-import com.example.onlinebankapp.domain.operation.OperationType
-import com.example.onlinebankapp.domain.operation.SampleOperations
 import com.example.onlinebankapp.domain.presentation.cardsection.operation.OperationScreen
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.operation.OperationViewModel

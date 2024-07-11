@@ -18,6 +18,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,12 +26,20 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.onlinebankapp.data.repository.TransactionRepositoryImpl
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.operation.OperationData
+import com.example.onlinebankapp.domain.operation.TransactionData
+import com.example.onlinebankapp.domain.operation.TransactionStatus
 import com.example.onlinebankapp.domain.presentation.auth.ErrorToast
 import com.example.onlinebankapp.domain.presentation.template.OperationButton
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
+import com.example.onlinebankapp.domain.presentation.viewmodel.operation.TransactionViewModel
+import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.AnotherGray
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.launch
+import java.util.Date
 
 @Composable
 fun OperationConfirm(
@@ -40,6 +49,15 @@ fun OperationConfirm(
     inputAmount: String,
     onConfirmClick: () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
+
+    val transactionRepo = TransactionRepositoryImpl(FirebaseFirestore.getInstance())
+    val transactionViewModel = remember { TransactionViewModel(transactionRepo)}
+    val transactionState by transactionViewModel.addTransactionState.collectAsState()
+
+    var showToast by remember { mutableStateOf(false) }
+    var toastMessage by remember { mutableStateOf("") }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,11 +81,48 @@ fun OperationConfirm(
             Text( text = "Amount: $inputAmount", color = Color.DarkGray)
             Text( text = "Currency: ${sourceCardData.currency}", color = Color.DarkGray)
             OperationButton(
-                onClick = { onConfirmClick() },
+                onClick = {
+                    scope.launch {
+                        val transactionData = TransactionData(
+                            transactionId = "",
+                            operationId = operationData.operationId,
+                            operationDate = Date(),
+                            sourceCardId = sourceCardData.cardId,
+                            destinationCardId = destinationCardData?.cardId ?: operationData.title,
+                            amount = inputAmount.toDoubleOrNull() ?: 0.0,
+                            currency = sourceCardData.currency,
+                            status = TransactionStatus.PENDING,
+                            description = operationData.title
+                        )
+                        transactionViewModel.createTransaction(transactionData)
+                    }
+                },
                 enabled = true
             )
         }
+        when (val state = transactionState) {
+            is Resource.Loading -> {}
+            is Resource.Success -> {
+                LaunchedEffect(state) {
+                    onConfirmClick()
+                }
+            }
+            is Resource.Error -> {
+                LaunchedEffect(state) {
+                    showToast = true
+                    toastMessage = state.message ?: "Unknown Error"
+                }
+            }
+            null -> {}
+        }
     }
+
+    ErrorToast(
+        message = toastMessage,
+        isVisible = showToast,
+        onDismiss = { showToast = false },
+        modifier = Modifier.padding(top = 60.dp)
+    )
 }
 
 @Composable
