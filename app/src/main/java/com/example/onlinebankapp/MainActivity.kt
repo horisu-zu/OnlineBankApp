@@ -197,7 +197,7 @@ fun HistoryScreen() {
             .fillMaxSize()
             .background(AnotherGray)
     ) {
-        HistoryComponent(SlightlyGrey, operationDataList())
+        HistoryComponent(SlightlyGrey, emptyList())
     }
 }
 

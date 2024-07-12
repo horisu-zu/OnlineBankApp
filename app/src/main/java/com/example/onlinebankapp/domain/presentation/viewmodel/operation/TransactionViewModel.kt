@@ -9,6 +9,7 @@ import com.example.onlinebankapp.domain.repository.TransactionRepository
 import com.example.onlinebankapp.domain.util.Resource
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -16,16 +17,37 @@ import kotlinx.coroutines.launch
 class TransactionViewModel(private val transactionRepository: TransactionRepository) : ViewModel() {
 
     private val _transactionData = MutableStateFlow<Resource<List<TransactionData>>>(Resource.Loading())
-    val transactionData = _transactionData.asStateFlow()
+    val transactionData: StateFlow<Resource<List<TransactionData>>> = _transactionData.asStateFlow()
 
     private val _addTransactionState = MutableStateFlow<Resource<String>?>(null)
     val addTransactionState = _addTransactionState.asStateFlow()
 
+    /*fun getTransactionsBy(userId: String) {
+        viewModelScope.launch {
+            try {
+                transactionRepository.getTransactionsFor()
+            } catch (e: Exception) {
+                _transactionData.emit(Resource.Error
+                    ("Failed to fetch transactions: ${e.message}"))
+            }
+        }
+    }*/
+
     fun getTransactionsFor(cardId: String) {
         viewModelScope.launch {
             try {
-                transactionRepository.getTransactionsBy(cardId).collect { result ->
-                    _transactionData.emit(result)
+                transactionRepository.getTransactionsFor(cardId).collect { result ->
+                    when (result) {
+                        is Resource.Error -> {
+                            Log.e("TransactionViewModel",
+                                "Error fetching transactions: ${result.message}")
+                        }
+                        is Resource.Loading -> {
+                            Log.d("TransactionViewModel",
+                                "Loading transactions for cardId: $cardId")
+                        }
+                        is Resource.Success -> _transactionData.value = result
+                    }
                 }
             } catch (e: Exception) {
                 _transactionData.emit(Resource.Error

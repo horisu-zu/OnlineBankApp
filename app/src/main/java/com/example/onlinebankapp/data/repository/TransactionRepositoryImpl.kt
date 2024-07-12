@@ -5,6 +5,7 @@ import com.example.onlinebankapp.domain.operation.TransactionData
 import com.example.onlinebankapp.domain.operation.TransactionStatus
 import com.example.onlinebankapp.domain.repository.TransactionRepository
 import com.example.onlinebankapp.domain.util.Resource
+import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.Flow
@@ -14,11 +15,57 @@ import kotlinx.coroutines.tasks.await
 class TransactionRepositoryImpl(private val firestore: FirebaseFirestore): TransactionRepository {
     private val transactionsCollection = firestore.collection("transaction")
 
-    override suspend fun getTransactionsBy(cardId: String): Flow<Resource<List<TransactionData>>> = flow {
+    /*override suspend fun getTransactionsBy(userId: String): Flow<Resource<List<TransactionData>>> = flow {
         emit(Resource.Loading())
         try {
             val snapshot = transactionsCollection
+                .whereEqualTo("")
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message ?: "An unknown error occurred"))
+        }
+    }*/
+
+    /*override suspend fun getTransactionsFor(cardId: String): Flow<Resource<List<TransactionData>>> = flow {
+        emit(Resource.Loading())
+        try {
+            val sourceTransactionsSnapshot = transactionsCollection
                 .whereEqualTo("sourceCardId", cardId)
+                .orderBy("operationDate", Query.Direction.DESCENDING)
+                .get()
+                .await()
+
+            val destinationTransactionsSnapshot = transactionsCollection
+                .whereEqualTo("destinationCardId", cardId)
+                .orderBy("operationDate", Query.Direction.DESCENDING)
+                .get()
+                .await()
+
+            val sourceTransactions = sourceTransactionsSnapshot.documents.mapNotNull { doc ->
+                doc.toObject(TransactionData::class.java)
+            }
+
+            val destinationTransactions = destinationTransactionsSnapshot.documents.mapNotNull { doc ->
+                doc.toObject(TransactionData::class.java)
+            }
+
+            val allTransactions = (sourceTransactions + destinationTransactions).sortedByDescending { it.operationDate }
+
+            emit(Resource.Success(allTransactions))
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message ?: "An unknown error occurred"))
+        }
+    }*/
+
+    override suspend fun getTransactionsFor(cardId: String): Flow<Resource<List<TransactionData>>> = flow {
+        emit(Resource.Loading())
+        try {
+            val snapshot = transactionsCollection
+                .where(
+                    Filter.or(
+                        Filter.equalTo("sourceCardId", cardId),
+                        Filter.equalTo("destinationCardId", cardId)
+                    )
+                )
                 .orderBy("operationDate", Query.Direction.DESCENDING)
                 .get()
                 .await()

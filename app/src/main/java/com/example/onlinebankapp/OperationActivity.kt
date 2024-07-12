@@ -13,9 +13,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import com.example.onlinebankapp.data.repository.CardRepositoryImpl
 import com.example.onlinebankapp.data.repository.OperationRepositoryImpl
+import com.example.onlinebankapp.data.repository.TransactionRepositoryImpl
 import com.example.onlinebankapp.domain.presentation.cardsection.operation.OperationScreen
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.operation.OperationViewModel
+import com.example.onlinebankapp.domain.presentation.viewmodel.operation.TransactionViewModel
 import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -32,10 +34,14 @@ class OperationActivity: ComponentActivity() {
         setContent {
             OnlineBankAppTheme {
                 val firestore = FirebaseFirestore.getInstance()
+
                 val cardRepository = CardRepositoryImpl(firestore)
                 val operationRepository = OperationRepositoryImpl(firestore)
+                val transactionRepo = TransactionRepositoryImpl(firestore)
+
                 val cardViewModel = remember { CardViewModel(cardRepository) }
                 val operationViewModel = remember { OperationViewModel(operationRepository) }
+                val transactionViewModel = remember { TransactionViewModel(transactionRepo) }
 
                 LaunchedEffect(userId) {
                     cardViewModel.setUserId(userId.toString())
@@ -65,6 +71,7 @@ class OperationActivity: ComponentActivity() {
                                         operationData = operationData,
                                         onBackPressed = { onBackPressed() },
                                         viewModel = cardViewModel,
+                                        transactionViewModel = transactionViewModel,
                                         userCards = userCards,
                                         initialCardIndex = initialCardIndex
                                     )

@@ -9,16 +9,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.operation.OperationItemData
+import com.example.onlinebankapp.domain.operation.TransactionData
 import com.example.onlinebankapp.domain.presentation.history.HistoryComponent
+import com.example.onlinebankapp.domain.presentation.viewmodel.operation.OperationViewModel
 
 @Composable
 fun HistorySection(
     cardId: String,
-    operations: List<OperationItemData>,
+    operations: List<TransactionData>,
+    operationViewModel: OperationViewModel,
     modifier: Modifier = Modifier
 ) {
-    val cardOperations = operations.filter { it.cardId == cardId }
-
     Column(modifier = modifier) {
         Text(
             text = "Operation History",
@@ -27,13 +28,17 @@ fun HistorySection(
             modifier = Modifier.padding(16.dp)
         )
 
-        if (cardOperations.isEmpty()) {
+        if (operations.isEmpty()) {
             Text(
                 text = "No Operation Data",
                 modifier = Modifier.padding(16.dp)
             )
         } else {
-            CardHistoryComponent(operationItemsData = cardOperations)
+            CardHistoryComponent(
+                cardId = cardId,
+                operationItemsData = operations,
+                operationViewModel = operationViewModel
+            )
         }
     }
 }

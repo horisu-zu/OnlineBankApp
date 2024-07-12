@@ -16,6 +16,27 @@ import kotlinx.coroutines.tasks.await
 class OperationRepositoryImpl(
     private val firestore: FirebaseFirestore
 ): OperationRepository {
+    override suspend fun getOperationBy(operationId: String): Flow<Resource<OperationData>> = flow {
+        emit(Resource.Loading())
+        try {
+            val documentSnapshot = firestore.collection("operations")
+                .document(operationId)
+                .get()
+                .await()
+
+            if (documentSnapshot.exists()) {
+                val operationData = documentSnapshot.toObject(OperationData::class.java)
+                operationData?.let {
+                    emit(Resource.Success(it))
+                } ?: emit(Resource.Error("Operation data is null"))
+            } else {
+                emit(Resource.Error("Operation not found"))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message ?: "An unknown error occurred"))
+        }
+    }
+
     override suspend fun getOperations(): Flow<Resource<List<OperationData>>> = flow {
         emit(Resource.Loading())
         try {

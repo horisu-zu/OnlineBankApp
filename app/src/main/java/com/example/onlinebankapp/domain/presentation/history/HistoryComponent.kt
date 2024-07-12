@@ -15,6 +15,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,8 +27,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.onlinebankapp.domain.operation.OperationData
 import com.example.onlinebankapp.domain.operation.OperationItemData
+import com.example.onlinebankapp.domain.operation.TransactionData
 import com.example.onlinebankapp.domain.presentation.template.ItemDivider
+import com.example.onlinebankapp.domain.presentation.viewmodel.operation.OperationViewModel
+import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
 import java.text.ParseException
@@ -36,9 +45,9 @@ import java.util.Locale
 @Composable
 fun HistoryComponent(
     backgroundColor: Color,
-    operationItems: List<OperationItemData>
+    operationItems: List<OperationItemData>?
 ) {
-    val groupedOperations = groupOperationsByDate(operationItems)
+    /*val groupedOperations = groupOperationsByDate(operationItems)
 
     LazyColumn {
         groupedOperations.forEach { (date, operations) ->
@@ -52,7 +61,7 @@ fun HistoryComponent(
                 }
             }
         }
-    }
+    }*/
 }
 
 @Composable
@@ -74,64 +83,78 @@ fun DateHeader(date: String) {
 
 @Composable
 fun HistoryItem(
-    operationItemData: OperationItemData
+    cardId: String,
+    transactionData: TransactionData,
+    operationData: OperationData?
 ) {
-    Row(
-        modifier = Modifier
-            .background(SlightlyGrey)
-            .padding(horizontal = 18.dp, vertical = 12.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top
-    ) {
+    operationData?.let { operation ->
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .background(SlightlyGrey)
+                .padding(horizontal = 18.dp, vertical = 12.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .background(getSoftColor(operationItemData.iconColor, 0.25f), shape = CircleShape),
-                contentAlignment = Alignment.Center
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.Top
             ) {
-                Icon(
-                    painter = painterResource(id = operationItemData.operationIcon),
-                    contentDescription = operationItemData.operationType,
-                    tint = operationItemData.iconColor,
-                    modifier = Modifier.size(36.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(getSoftColor(operation.iconColor, 0.25f), shape = CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        painter = painterResource(id = operation.icon),
+                        contentDescription = operation.title,
+                        tint = operation.iconColor,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+                Column(
+                    modifier = Modifier,
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.Top
+                ) {
+                    Text(
+                        text = operation.title,
+                        fontSize = 16.sp,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Normal
+                    )
+                    Text(
+                        text = formatTime(transactionData.operationDate),
+                        fontSize = 14.sp,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
             }
-            Column(
-                modifier = Modifier,
-                horizontalAlignment = Alignment.Start,
-                verticalArrangement = Arrangement.Top
-            ) {
-                Text(
-                    text = operationItemData.operationType,
-                    fontSize = 16.sp,
-                    color = Color.DarkGray,
-                    fontWeight = FontWeight.Normal
-                )
-                Text(
-                    text = formatTime(operationItemData.operationDate),
-                    fontSize = 14.sp,
-                    color = Color.DarkGray,
-                    fontWeight = FontWeight.Normal
-                )
-            }
+            Text(
+                text = "${isReceived(cardId, transactionData)}${transactionData.amount} " +
+                        transactionData.currency,
+                fontSize = 15.sp,
+                color = Color.DarkGray,
+                fontWeight = FontWeight.SemiBold
+            )
         }
-        Text(
-            text = "${isReceivedOperation(operationItemData)}${operationItemData.operationAmount}" +
-                    " ${operationItemData.operationCurrency}",
-            fontSize = 15.sp,
-            color = Color.DarkGray,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
+    } ?: Text("Operation data not found", color = Color.Red)
 }
 
 fun getSoftColor(color: Color, alpha: Float = 0.5f): Color {
     return color.copy(alpha = alpha)
+}
+
+fun isReceived(cardId: String, transactionData: TransactionData): String {
+    return if (transactionData.sourceCardId == cardId) {
+        "-"
+    } else if (transactionData.destinationCardId == cardId) {
+        "+"
+    } else {
+        ""
+    }
 }
 
 fun isReceivedOperation(operationItemData: OperationItemData): String {
@@ -166,7 +189,7 @@ fun formatDate(date: Date): String {
     }
 }
 
-fun groupOperationsByDate(operations: List<OperationItemData>): Map<String, List<OperationItemData>> {
+fun groupOperationsByDate(operations: List<TransactionData>): Map<String, List<TransactionData>> {
     return operations
         .sortedByDescending { it.operationDate }
         .groupBy { formatDate(it.operationDate) }

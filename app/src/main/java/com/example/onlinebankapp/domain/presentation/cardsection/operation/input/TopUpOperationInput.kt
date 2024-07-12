@@ -37,7 +37,7 @@ fun TopUpOperationInput(
     cardData: List<PaymentCardData>,
     initialCardIndex: Int,
     inputAmount: String,
-    onAmountEntered: (String, PaymentCardData, PaymentCardData?) -> Unit
+    onAmountEntered: (String, PaymentCardData?, PaymentCardData) -> Unit
 ) {
     var localInputAmount by remember { mutableStateOf(inputAmount) }
     val pagerState = rememberPagerState(initialPage = initialCardIndex)
@@ -97,7 +97,7 @@ fun TopUpOperationInput(
                 CurrencyCard(paymentCardData = selectedCard)
             }
             OperationButton(
-                onClick = { onAmountEntered(localInputAmount, selectedCard, null)},
+                onClick = { onAmountEntered(localInputAmount, null, selectedCard)},
                 enabled = localInputAmount.isNotEmpty()
             )
         }

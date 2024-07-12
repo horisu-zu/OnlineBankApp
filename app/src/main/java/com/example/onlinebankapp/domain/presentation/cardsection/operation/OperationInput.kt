@@ -15,7 +15,7 @@ fun OperationInput(
     cardData: List<PaymentCardData>,
     inputAmount: String,
     initialCardIndex: Int,
-    onAmountEntered: (String, PaymentCardData, PaymentCardData?) -> Unit
+    onAmountEntered: (String, PaymentCardData?, PaymentCardData?) -> Unit
 ) {
     when (operationData.operationId) {
         "top_up" -> TopUpOperationInput(

@@ -26,16 +26,28 @@ data class OperationType(
 )
 
 data class TransactionData(
-    val transactionId: String,
-    val operationId: String,
-    val operationDate: Date,
-    val sourceCardId: String,
-    val destinationCardId: String,
-    val amount: Double,
-    val currency: CurrencyType,
-    val status: TransactionStatus,
-    val description: String?
-)
+    val transactionId: String = "",
+    val operationId: String = "",
+    val operationDate: Date = Date(),
+    val sourceCardId: String = "",
+    val destinationCardId: String = "",
+    val amount: Double = 0.0,
+    val currency: CurrencyType = CurrencyType.USD,
+    val status: TransactionStatus = TransactionStatus.PENDING,
+    val description: String? = null
+) {
+    constructor() : this(
+        transactionId = "",
+        operationId = "",
+        operationDate = Date(),
+        sourceCardId = "",
+        destinationCardId = "",
+        amount = 0.0,
+        currency = CurrencyType.USD,
+        status = TransactionStatus.PENDING,
+        description = null
+    )
+}
 
 enum class TransactionStatus {
     PENDING, COMPLETED, FAILED, CANCELLED

@@ -69,7 +69,6 @@ fun CardHeader(
     )
 
     val context = LocalContext.current
-    val activity = context as Activity?
 
     val textColor = getTextColorForBackground(paymentCardData.cardColor.toColor())
 
