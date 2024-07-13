@@ -39,7 +39,7 @@ fun PaymentInput(
     label: String,
     initialCardIndex: Int,
     inputAmount: String,
-    onAmountEntered: (String, PaymentCardData?, PaymentCardData) -> Unit
+    onAmountEntered: (String, PaymentCardData, PaymentCardData?) -> Unit
 ) {
     var localInputAmount by remember { mutableStateOf(inputAmount) }
     var localDataInput by remember { mutableStateOf("") }
@@ -111,7 +111,7 @@ fun PaymentInput(
 
             OperationButton(
                 onClick = {
-                    onAmountEntered(localInputAmount, null, selectedCard)
+                    onAmountEntered(localInputAmount, selectedCard, null)
                 },
                 enabled = localInputAmount.isNotEmpty()
             )

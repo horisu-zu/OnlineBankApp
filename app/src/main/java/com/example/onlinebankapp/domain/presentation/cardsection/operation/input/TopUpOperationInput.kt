@@ -37,7 +37,7 @@ fun TopUpOperationInput(
     cardData: List<PaymentCardData>,
     initialCardIndex: Int,
     inputAmount: String,
-    onAmountEntered: (String, PaymentCardData?, PaymentCardData) -> Unit
+    onAmountEntered: (String, PaymentCardData?, PaymentCardData?) -> Unit
 ) {
     var localInputAmount by remember { mutableStateOf(inputAmount) }
     val pagerState = rememberPagerState(initialPage = initialCardIndex)

@@ -20,8 +20,7 @@ import com.example.onlinebankapp.domain.card.PaymentCardData
 
 @Composable
 fun OperationResult(
-    cardData: PaymentCardData,
-    destinationCardData: PaymentCardData?
+    cardData: PaymentCardData?
 ) {
     Column(
         modifier = Modifier
@@ -43,11 +42,11 @@ fun OperationResult(
             color = Color.DarkGray
         )
         Text(
-            text = "Card Name: ${cardData.cardName}",
+            text = "Card Name: ${cardData?.cardName}",
             color = Color.DarkGray
         )
         Text(
-            text = "New Balance: ${cardData.currentBalance} ${cardData.currency}",
+            text = "New Balance: ${cardData?.currentBalance} ${cardData?.currency}",
             color = Color.DarkGray
         )
     }

@@ -113,27 +113,38 @@ fun OperationScreen(
                         initialCardIndex
                     ) { newAmount, selectedSourceCard, selectedDestinationCard ->
                         inputAmount = newAmount
-                        sourceCardData = selectedSourceCard
-                        destinationCardData = selectedDestinationCard
-                        val result = processOperation(
-                            operationData,
-                            selectedSourceCard!!,
-                            selectedDestinationCard!!,
-                            newAmount.toFloatOrNull() ?: 0f
-                        )
-                        if (result.isSuccess) {
-                            val (newSourceCard, newDestinationCard) = result.getOrNull()!!
-                            sourceCardData = newSourceCard
-                            destinationCardData = newDestinationCard
-                            currentStep++
-                        } else {
-                            toastMessage = result.exceptionOrNull()?.message.toString()
+
+                        val (sourceCard, destinationCard) = when (operationData.operationTypeId) {
+                            "TOP_UP" -> Pair(null, selectedDestinationCard)
+                            "PAYMENT" -> Pair(selectedSourceCard, null)
+                            "TRANSFER" -> Pair(selectedSourceCard, selectedDestinationCard)
+                            else -> Pair(null, null)
+                        }
+
+                        if (sourceCard == null && destinationCard == null) {
+                            toastMessage = "Invalid operation type"
                             showToast = true
+                        } else {
+                            val result = processOperation(
+                                operationData,
+                                sourceCard,
+                                destinationCard,
+                                newAmount.toFloatOrNull() ?: 0f
+                            )
+                            if (result.isSuccess) {
+                                val (newSourceCard, newDestinationCard) = result.getOrNull()!!
+                                sourceCardData = newSourceCard
+                                destinationCardData = newDestinationCard
+                                currentStep++
+                            } else {
+                                toastMessage = result.exceptionOrNull()?.message.toString()
+                                showToast = true
+                            }
                         }
                     }
                     2 -> OperationConfirm(
                         operationData = operationData,
-                        sourceCardData = sourceCardData!!,
+                        sourceCardData = sourceCardData,
                         destinationCardData = destinationCardData,
                         inputAmount = inputAmount,
                         onConfirmClick = {
@@ -142,10 +153,10 @@ fun OperationScreen(
                                     transactionId = "",
                                     operationId = operationData.operationId,
                                     operationDate = Date(),
-                                    sourceCardId = sourceCardData!!.cardId,
+                                    sourceCardId = sourceCardData?.cardId ?: operationData.title,
                                     destinationCardId = destinationCardData?.cardId ?: operationData.title,
-                                    amount = inputAmount.toDoubleOrNull() ?: 0.0,
-                                    currency = sourceCardData!!.currency,
+                                    amount = inputAmount.toDouble(),
+                                    currency = sourceCardData?.currency ?: destinationCardData!!.currency,
                                     status = TransactionStatus.PENDING,
                                     description = operationData.title
                                 )
@@ -153,7 +164,7 @@ fun OperationScreen(
                             }
                         }
                     )
-                    3 -> OperationResult(sourceCardData!!, destinationCardData)
+                    3 -> OperationResult(sourceCardData ?: destinationCardData)
                 }
             }
         }
@@ -168,7 +179,7 @@ fun OperationScreen(
     LaunchedEffect(transactionState) {
         when (val state = transactionState) {
             is Resource.Success -> {
-                viewModel.updateCardData(sourceCardData!!)
+                sourceCardData?.let { viewModel.updateCardData(it) }
                 destinationCardData?.let { viewModel.updateCardData(it) }
                 currentStep++
             }
@@ -182,19 +193,26 @@ fun OperationScreen(
     }
 }
 
+//There's a lot of problems so i think later i'll rework this (idk how...)
 private fun processOperation(
     operationData: OperationData,
-    sourceCard: PaymentCardData,
-    destinationCard: PaymentCardData,
+    sourceCard: PaymentCardData?,
+    destinationCard: PaymentCardData?,
     amount: Float
-): Result<Pair<PaymentCardData, PaymentCardData?>> {
+): Result<Pair<PaymentCardData?, PaymentCardData?>> {
     return when (operationData.operationTypeId) {
         "TOP_UP" -> {
-            val newBalance = destinationCard.currentBalance + amount
-            Result.success(Pair(sourceCard.copy(currentBalance = newBalance), null))
+            if (destinationCard == null) {
+                Result.failure(Exception("Destination card is missing"))
+            } else {
+                val newBalance = destinationCard.currentBalance + amount
+                Result.success(Pair(null, destinationCard.copy(currentBalance = newBalance)))
+            }
         }
         "PAYMENT" -> {
-            if (amount > sourceCard.currentBalance) {
+            if (sourceCard == null) {
+                Result.failure(Exception("Source card is missing"))
+            } else if (amount > sourceCard.currentBalance) {
                 Result.failure(Exception("Insufficient funds"))
             } else {
                 val newBalance = sourceCard.currentBalance - amount
@@ -202,8 +220,10 @@ private fun processOperation(
             }
         }
         "TRANSFER" -> {
-            if (destinationCard == sourceCard) {
-                Result.failure(Exception("Destination card is missing"))
+            if (sourceCard == null || destinationCard == null) {
+                Result.failure(Exception("Source or destination card is missing"))
+            } else if (destinationCard == sourceCard) {
+                Result.failure(Exception("Cannot transfer to the same card"))
             } else if (amount > sourceCard.currentBalance) {
                 Result.failure(Exception("Insufficient funds"))
             } else if(destinationCard.currency != sourceCard.currency) {

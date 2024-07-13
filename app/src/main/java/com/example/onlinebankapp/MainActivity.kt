@@ -10,9 +10,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
@@ -22,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.onlinebankapp.data.repository.CardRepositoryImpl
 import com.example.onlinebankapp.data.repository.OperationRepositoryImpl
+import com.example.onlinebankapp.data.repository.TransactionRepositoryImpl
 import com.example.onlinebankapp.data.repository.UserRepositoryImpl
 import com.example.onlinebankapp.domain.presentation.auth.AuthNavigator
 import com.example.onlinebankapp.domain.navigation.NavigationItemList
@@ -35,11 +41,14 @@ import com.example.onlinebankapp.domain.presentation.cardsection.OperationList
 import com.example.onlinebankapp.domain.presentation.cardsection.YourCardSection
 import com.example.onlinebankapp.domain.presentation.history.HistoryComponent
 import com.example.onlinebankapp.domain.presentation.service.ServiceScreen
+import com.example.onlinebankapp.domain.presentation.template.OperationButton
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.exchange.viewModelFactory
 import com.example.onlinebankapp.domain.presentation.viewmodel.operation.OperationViewModel
+import com.example.onlinebankapp.domain.presentation.viewmodel.operation.TransactionViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModelFactory
+import com.example.onlinebankapp.domain.util.Resource
 import com.example.onlinebankapp.ui.theme.AnotherGray
 import com.example.onlinebankapp.ui.theme.OnlineBankAppTheme
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
@@ -96,6 +105,9 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
     val operationRepository = OperationRepositoryImpl(firestore)
     val operationViewModel = remember { OperationViewModel(operationRepository) }
 
+    val transactionRepository = TransactionRepositoryImpl(firestore)
+    val transactionViewModel = remember { TransactionViewModel(transactionRepository) }
+
     ModalNavigationDrawer(
         drawerContent = {
             MainNavigationDrawer(
@@ -145,7 +157,11 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
                         BottomNavItem.Home.route,
                         BottomNavItem.Services.route)()?.let { slideOutOfContainer(it) } }
                 ) {
-                    HistoryScreen()
+                    HistoryScreen(
+                        userId = userId,
+                        transactionViewModel = transactionViewModel,
+                        operationViewModel = operationViewModel
+                    )
                 }
 
                 composable(
@@ -191,13 +207,46 @@ fun HomeScreen(
 }
 
 @Composable
-fun HistoryScreen() {
+fun HistoryScreen(
+    userId: String,
+    transactionViewModel: TransactionViewModel,
+    operationViewModel: OperationViewModel
+) {
+    val transactionState by transactionViewModel.transactionData.collectAsState()
+
+    LaunchedEffect(Unit) {
+        transactionViewModel.getTransactionsBy(userId)
+        operationViewModel.getOperations()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(AnotherGray)
     ) {
-        HistoryComponent(SlightlyGrey, emptyList())
+        when (val state = transactionState) {
+            is Resource.Success -> {
+                HistoryComponent(
+                    operationItemsData = state.data!!,
+                    operationViewModel = operationViewModel
+                )
+            }
+            is Resource.Loading -> {}
+            is Resource.Error -> {
+                Text(
+                    text = "Error: ${state.message}",
+                    color = Color.Red,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                OperationButton(
+                    label = "Retry",
+                    onClick = {
+                    transactionViewModel.getTransactionsBy(userId)
+                    operationViewModel.getOperations()
+                              },
+                    enabled = true)
+            }
+        }
     }
 }
 

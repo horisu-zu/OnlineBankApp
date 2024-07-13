@@ -1,6 +1,7 @@
 package com.example.onlinebankapp.data.repository
 
 import android.util.Log
+import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.operation.TransactionData
 import com.example.onlinebankapp.domain.operation.TransactionStatus
 import com.example.onlinebankapp.domain.repository.TransactionRepository
@@ -14,16 +15,42 @@ import kotlinx.coroutines.tasks.await
 
 class TransactionRepositoryImpl(private val firestore: FirebaseFirestore): TransactionRepository {
     private val transactionsCollection = firestore.collection("transaction")
+    private val cardCollection = firestore.collection("paymentCard")
 
-    /*override suspend fun getTransactionsBy(userId: String): Flow<Resource<List<TransactionData>>> = flow {
+    override suspend fun getTransactionsBy(userId: String): Flow<Resource<List<TransactionData>>> = flow {
         emit(Resource.Loading())
         try {
-            val snapshot = transactionsCollection
-                .whereEqualTo("")
+            val userCards = cardCollection
+                .whereEqualTo("ownerId", userId)
+                .get()
+                .await()
+                .toObjects(PaymentCardData::class.java)
+
+            Log.d("TransactionRepository", userCards.size.toString())
+
+            val cardIds = userCards.map { it.cardId }
+
+            val sourceTransactions = transactionsCollection
+                .whereIn("sourceCardId", cardIds)
+                .get()
+                .await()
+
+            val destinationTransactions = transactionsCollection
+                .whereIn("destinationCardId", cardIds)
+                .get()
+                .await()
+
+            val transactions = (sourceTransactions.toObjects(TransactionData::class.java) +
+                    destinationTransactions.toObjects(TransactionData::class.java))
+                .distinctBy{ it.transactionId }
+
+            Log.d("TransactionRepository", "Number of transactions: ${transactions.size}")
+
+            emit(Resource.Success(transactions))
         } catch (e: Exception) {
             emit(Resource.Error(e.message ?: "An unknown error occurred"))
         }
-    }*/
+    }
 
     /*override suspend fun getTransactionsFor(cardId: String): Flow<Resource<List<TransactionData>>> = flow {
         emit(Resource.Loading())

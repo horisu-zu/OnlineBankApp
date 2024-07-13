@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.presentation.history
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -12,16 +13,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,24 +48,54 @@ import java.util.Locale
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HistoryComponent(
-    backgroundColor: Color,
-    operationItems: List<OperationItemData>?
+    operationItemsData: List<TransactionData>,
+    operationViewModel: OperationViewModel
 ) {
-    /*val groupedOperations = groupOperationsByDate(operationItems)
+    val operationState by operationViewModel.operationState.collectAsState()
 
-    LazyColumn {
-        groupedOperations.forEach { (date, operations) ->
-            stickyHeader {
-                DateHeader(date)
-            }
-            itemsIndexed(operations) { index, operation ->
-                HistoryItem(operationItemData = operation)
-                if (index < operations.size - 1) {
-                    ItemDivider(backgroundColor = backgroundColor)
+    when (val state = operationState) {
+        is Resource.Success -> {
+            val operations = state.data
+            val groupedOperations = groupOperationsByDate(operationItemsData)
+
+            Log.d("History Component", "Total operations: ${operations?.size}")
+            Log.d("History Component", "Grouped operations: ${groupedOperations.size}")
+
+            LazyColumn {
+                groupedOperations.forEach { (date, transactions) ->
+                    stickyHeader {
+                        DateHeader(date = date)
+                    }
+                    itemsIndexed(transactions) { index, transactionData ->
+                        val operationData = operations?.find { it.operationId == transactionData.operationId }
+                        Log.d(
+                            "History Component",
+                            "Transaction ID: ${transactionData.operationId}," +
+                                    " OperationData: $operationData"
+                        )
+                        HistoryItem(
+                            transactionData = transactionData,
+                            operationData = operationData
+                        )
+                        if (index < transactions.size - 1) {
+                            Divider(
+                                color = Color.Gray,
+                                thickness = 1.dp,
+                                modifier = Modifier
+                                    .background(SlightlyGrey)
+                                    .padding(start = 80.dp, end = 18.dp)
+                                    .alpha(0.5f)
+                            )
+                        }
+                    }
                 }
             }
         }
-    }*/
+        is Resource.Loading -> {
+        }
+        is Resource.Error -> {
+        }
+    }
 }
 
 @Composable
@@ -83,7 +117,7 @@ fun DateHeader(date: String) {
 
 @Composable
 fun HistoryItem(
-    cardId: String,
+    cardId: String = "",
     transactionData: TransactionData,
     operationData: OperationData?
 ) {
@@ -154,14 +188,6 @@ fun isReceived(cardId: String, transactionData: TransactionData): String {
         "+"
     } else {
         ""
-    }
-}
-
-fun isReceivedOperation(operationItemData: OperationItemData): String {
-    return if(operationItemData.isReceived) {
-        "+"
-    } else {
-        "-"
     }
 }
 

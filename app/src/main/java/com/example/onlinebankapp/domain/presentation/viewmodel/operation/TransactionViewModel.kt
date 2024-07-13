@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class TransactionViewModel(private val transactionRepository: TransactionRepository) : ViewModel() {
@@ -22,16 +23,33 @@ class TransactionViewModel(private val transactionRepository: TransactionReposit
     private val _addTransactionState = MutableStateFlow<Resource<String>?>(null)
     val addTransactionState = _addTransactionState.asStateFlow()
 
-    /*fun getTransactionsBy(userId: String) {
+    fun getTransactionsBy(userId: String) {
         viewModelScope.launch {
             try {
-                transactionRepository.getTransactionsFor()
+                transactionRepository.getTransactionsBy(userId).collect { result ->
+                    when (result) {
+                        is Resource.Error -> {
+                            Log.e("TransactionViewModel",
+                                "Error fetching transactions: ${result.message}")
+                        }
+                        is Resource.Loading -> {
+                            Log.d("TransactionViewModel",
+                                "Loading transactions for userId: $userId")
+                        }
+                        is Resource.Success -> {
+                            _transactionData.value = result
+                            Log.d("TransactionViewModel",
+                                _transactionData.value.data?.size.toString()
+                            )
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 _transactionData.emit(Resource.Error
                     ("Failed to fetch transactions: ${e.message}"))
             }
         }
-    }*/
+    }
 
     fun getTransactionsFor(cardId: String) {
         viewModelScope.launch {

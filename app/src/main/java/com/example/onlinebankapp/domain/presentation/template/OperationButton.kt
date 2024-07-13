@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun OperationButton(
+    label: String = "Confirm Operation",
     onClick: () -> Unit,
     enabled: Boolean
 ) {
@@ -34,7 +35,7 @@ fun OperationButton(
         shape = RoundedCornerShape(8.dp)
     ) {
         Text(
-            text = "Confirm Operation",
+            text = label,
             fontWeight = FontWeight.Medium
         )
     }

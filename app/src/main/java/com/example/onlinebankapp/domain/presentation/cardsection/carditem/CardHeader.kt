@@ -266,7 +266,7 @@ fun CardHeaderPreview() {
 
 fun getElevationColor(backgroundColor: Color): Color {
     return if (backgroundColor.luminance() < 0.5) {
-        Color.Black
+        Color.DarkGray
     } else {
         Color.White
     }

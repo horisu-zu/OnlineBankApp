@@ -75,6 +75,12 @@ class CardViewModel(private val cardRepository: CardRepository) : ViewModel() {
         getCardServiceFromNumber(_cardData.value.cardNumber)
     }
 
+    //God bless you
+    fun updateAddCardData(newData: PaymentCardData) {
+        _cardData.value = newData
+    }
+
+    //Nah, i can't believe this... was the reason why addCard wasn't working
     fun updateCardData(cardData: PaymentCardData) {
         viewModelScope.launch {
             cardRepository.updateCard(cardData.cardId, cardData).collect { result ->

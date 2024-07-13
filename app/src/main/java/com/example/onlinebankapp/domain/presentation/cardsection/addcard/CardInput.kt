@@ -293,7 +293,6 @@ fun CardType(
     }
 }
 
-
 fun formatInputNumber(text: String): VisualTransformation {
     return VisualTransformation { text ->
         val trimmed = text.text.take(16)

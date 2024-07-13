@@ -3,6 +3,7 @@ package com.example.onlinebankapp.domain.presentation.cardsection.operation
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -47,7 +48,7 @@ import java.util.Locale
 @Composable
 fun OperationConfirm(
     operationData: OperationData,
-    sourceCardData: PaymentCardData,
+    sourceCardData: PaymentCardData?,
     destinationCardData: PaymentCardData?,
     inputAmount: String,
     onConfirmClick: () -> Unit
@@ -55,7 +56,7 @@ fun OperationConfirm(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 48.dp),
+            .padding(horizontal = 24.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = AnotherGray)
     ) {
@@ -71,7 +72,7 @@ fun OperationConfirm(
 
 @Composable
 private fun TransactionComponent(
-    sourceCardData: PaymentCardData,
+    sourceCardData: PaymentCardData?,
     destinationCardData: PaymentCardData?,
     operationData: OperationData,
     inputAmount: String,
@@ -80,7 +81,7 @@ private fun TransactionComponent(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 48.dp),
+            .padding(horizontal = 36.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = AnotherGray)
     ) {
@@ -90,20 +91,24 @@ private fun TransactionComponent(
                 .padding(vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("Source Card", fontWeight = FontWeight.Bold, color = Color.DarkGray)
-            Text("Card Name: ${sourceCardData.cardName}", color = Color.DarkGray)
-            Text("Card Number: •••• ${sourceCardData.cardNumber.takeLast(4)}",
-                color = Color.DarkGray)
-            Text("Currency: ${sourceCardData.currency}", color = Color.DarkGray)
-
+            if(sourceCardData != null) {
+                Text("Source Card", fontWeight = FontWeight.Bold, color = Color.DarkGray)
+                Text("Card Name:\n${sourceCardData.cardName}", color = Color.DarkGray)
+                Text(
+                    "Card Number: •••• ${sourceCardData.cardNumber.takeLast(4)}",
+                    color = Color.DarkGray
+                )
+                Text("Currency: ${sourceCardData.currency}", color = Color.DarkGray)
+            } else {
+                Text("Source: ${operationData.title}", color = Color.DarkGray)
+            }
             DashedDivider(color = Color.DarkGray)
 
             if (destinationCardData != null) {
                 Text("Destination Card", fontWeight = FontWeight.Bold, color = Color.DarkGray)
-                Text("Card Name: ${destinationCardData.cardName}", color = Color.DarkGray)
+                Text("Card Name:\n${destinationCardData.cardName}", color = Color.DarkGray)
                 Text("Card Number: •••• ${destinationCardData.cardNumber.takeLast(4)}",
                     color = Color.DarkGray)
-                Text("Currency: ${destinationCardData.currency}", color = Color.DarkGray)
             } else {
                 Text("Destination: ${operationData.title}", color = Color.DarkGray)
             }

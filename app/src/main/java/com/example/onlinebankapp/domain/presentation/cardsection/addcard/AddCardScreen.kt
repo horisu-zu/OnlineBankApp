@@ -5,18 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import com.example.onlinebankapp.domain.card.CardService
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.presentation.template.StepAppBar
-import com.example.onlinebankapp.domain.presentation.template.StepIndicator
 import com.example.onlinebankapp.domain.presentation.viewmodel.card.CardViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
 import com.example.onlinebankapp.ui.theme.SlightlyGrey
@@ -43,8 +33,6 @@ import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddCardScreen(viewModel: CardViewModel, userViewModel: UserViewModel) {
     var currentStep by remember { mutableIntStateOf(1) }
@@ -127,7 +115,7 @@ fun AddCardComponent(viewModel: CardViewModel) {
         CardPreview(cardData = cardData)
         CardInput(
             cardData = cardData,
-            onCardDataChange = { viewModel.updateCardData(it) }
+            onCardDataChange = { viewModel.updateAddCardData(it) }
         )
 
         validationErrors.forEach { (field, error) ->
