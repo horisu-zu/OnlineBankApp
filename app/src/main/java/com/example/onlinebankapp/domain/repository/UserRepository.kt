@@ -11,4 +11,5 @@ interface UserRepository {
     suspend fun updateUser(userId: String, user: UserData): Flow<Resource<Void?>>
     suspend fun updateSignedInStatus(userId: String, signedIn: Date)
     suspend fun addUser(userId: String, user: UserData): Flow<Resource<Void?>>
+    suspend fun getQuickOperations(userId: String): Flow<Resource<List<String>>>
 }

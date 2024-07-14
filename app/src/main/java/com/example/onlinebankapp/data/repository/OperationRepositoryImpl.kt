@@ -114,4 +114,13 @@ class OperationRepositoryImpl(
             emit(Resource.Error(e.message ?: "Unknown error"))
         }
     }
+
+    override suspend fun getDefaultOperations(): List<String> {
+        return firestore.collection("operation")
+            .whereIn("operationId", listOf("inner_transfer", "top_up", "steam_payment"))
+            .get()
+            .await()
+            .documents
+            .mapNotNull { it.getString("operationId") }
+    }
 }

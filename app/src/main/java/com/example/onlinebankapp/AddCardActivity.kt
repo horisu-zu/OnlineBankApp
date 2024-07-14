@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.onlinebankapp.data.repository.CardRepositoryImpl
+import com.example.onlinebankapp.data.repository.OperationRepositoryImpl
 import com.example.onlinebankapp.data.repository.UserRepositoryImpl
 import com.example.onlinebankapp.domain.card.PaymentCardData
 import com.example.onlinebankapp.domain.presentation.cardsection.addcard.AddCardScreen
@@ -25,7 +26,8 @@ class AddCardActivity : ComponentActivity() {
             OnlineBankAppTheme {
                 val firestore = FirebaseFirestore.getInstance()
                 val cardRepository = CardRepositoryImpl(firestore)
-                val userRepository = UserRepositoryImpl(firestore)
+                val operationRepository = OperationRepositoryImpl(firestore)
+                val userRepository = UserRepositoryImpl(firestore, operationRepository)
 
                 val userViewModel: UserViewModel = viewModel(
                     factory = UserViewModelFactory(userRepository)

@@ -1,6 +1,7 @@
 package com.example.onlinebankapp.data.repository
 
 import android.util.Log
+import com.example.onlinebankapp.domain.repository.OperationRepository
 import com.example.onlinebankapp.domain.repository.UserRepository
 import com.example.onlinebankapp.domain.user.UserData
 import com.example.onlinebankapp.domain.util.Resource
@@ -11,7 +12,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.util.Date
 
-class UserRepositoryImpl(private val firestore: FirebaseFirestore): UserRepository {
+class UserRepositoryImpl(
+    private val firestore: FirebaseFirestore,
+    private val operationRepository: OperationRepository
+): UserRepository {
     override suspend fun getUser(userId: String): Flow<Resource<UserData>> = flow {
         emit(Resource.Loading())
         try {
@@ -58,8 +62,33 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore): UserReposito
     override suspend fun addUser(userId: String, user: UserData): Flow<Resource<Void?>> = flow {
         emit(Resource.Loading())
         try {
-            val result = firestore.collection("users").document(userId).set(user).await()
+            val defaultOperations = operationRepository.getDefaultOperations()
+            val updatedUser = user.copy(quickOperations = defaultOperations)
+
+            val result = firestore.collection("users")
+                .document(userId)
+                .set(updatedUser)
+                .await()
             emit(Resource.Success(result))
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message ?: "Unknown error"))
+        }
+    }
+
+    override suspend fun getQuickOperations(userId: String): Flow<Resource<List<String>>> = flow {
+        emit(Resource.Loading())
+        try {
+            val documentSnapshot = firestore.collection("users")
+                .document(userId)
+                .get()
+                .await()
+
+            val quickOperations = documentSnapshot.get("quickOperations") as? List<String>
+            if (quickOperations != null) {
+                emit(Resource.Success(quickOperations))
+            } else {
+                emit(Resource.Error("Quick operations not found or invalid"))
+            }
         } catch (e: Exception) {
             emit(Resource.Error(e.message ?: "Unknown error"))
         }

@@ -15,14 +15,15 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun OperationButton(
+    modifier: Modifier = Modifier,
     label: String = "Confirm Operation",
     onClick: () -> Unit,
-    enabled: Boolean
+    enabled: Boolean,
 ) {
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 18.dp, vertical = 8.dp),
         colors = ButtonDefaults.buttonColors(

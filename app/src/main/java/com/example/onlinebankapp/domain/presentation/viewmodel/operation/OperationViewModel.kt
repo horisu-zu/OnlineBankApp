@@ -24,6 +24,9 @@ class OperationViewModel(private val operationRepository: OperationRepository): 
     val _typeState = MutableStateFlow<Resource<List<OperationType>>>(Resource.Loading())
     val typeState: StateFlow<Resource<List<OperationType>>> = _typeState.asStateFlow()
 
+    private val _selectedOperations = MutableStateFlow<Resource<List<OperationData>>>(Resource.Loading())
+    val selectedOperations: StateFlow<Resource<List<OperationData>>> = _selectedOperations
+
     init {
         getOperations()
         getOperationTypes()
@@ -67,6 +70,23 @@ class OperationViewModel(private val operationRepository: OperationRepository): 
         viewModelScope.launch {
             operationRepository.getOperationTypes().collect() { result ->
                 _typeState.value = result
+            }
+        }
+    }
+
+    fun getOperationsByIds(ids: List<String>) {
+        viewModelScope.launch {
+            _selectedOperations.value = Resource.Loading()
+            operationState.collect { state ->
+                _selectedOperations.value = when (state) {
+                    is Resource.Success -> {
+                        val operationsMap = state.data?.associateBy { it.operationId } ?: emptyMap()
+                        val filteredOperations = ids.mapNotNull { id -> operationsMap[id] }
+                        Resource.Success(filteredOperations)
+                    }
+                    is Resource.Error -> Resource.Error(state.message ?: "Unknown error")
+                    is Resource.Loading -> Resource.Loading()
+                }
             }
         }
     }

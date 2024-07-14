@@ -13,8 +13,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,12 +33,14 @@ import com.example.onlinebankapp.data.repository.TransactionRepositoryImpl
 import com.example.onlinebankapp.data.repository.UserRepositoryImpl
 import com.example.onlinebankapp.domain.presentation.auth.AuthNavigator
 import com.example.onlinebankapp.domain.navigation.NavigationItemList
+import com.example.onlinebankapp.domain.operation.OperationData
 import com.example.onlinebankapp.domain.operation.operationDataList
 import com.example.onlinebankapp.domain.presentation.AppBar
 import com.example.onlinebankapp.domain.presentation.BottomNavItem
 import com.example.onlinebankapp.domain.presentation.BottomNavigationMenu
 import com.example.onlinebankapp.domain.presentation.viewmodel.exchange.ExchangeViewModel
 import com.example.onlinebankapp.domain.presentation.MainNavigationDrawer
+import com.example.onlinebankapp.domain.presentation.cardsection.OperationComponent
 import com.example.onlinebankapp.domain.presentation.cardsection.OperationList
 import com.example.onlinebankapp.domain.presentation.cardsection.YourCardSection
 import com.example.onlinebankapp.domain.presentation.history.HistoryComponent
@@ -63,7 +67,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             OnlineBankAppTheme {
                 val fireStore = FirebaseFirestore.getInstance()
-                val userRepository = UserRepositoryImpl(fireStore)
+                val operationRepository = OperationRepositoryImpl(fireStore)
+                val userRepository = UserRepositoryImpl(fireStore, operationRepository)
                 val userViewModel: UserViewModel = viewModel(
                     factory = UserViewModelFactory(userRepository)
                 )
@@ -108,6 +113,11 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
     val transactionRepository = TransactionRepositoryImpl(firestore)
     val transactionViewModel = remember { TransactionViewModel(transactionRepository) }
 
+    val userRepository = UserRepositoryImpl(firestore, operationRepository)
+    val userViewModel: UserViewModel = viewModel(
+        factory = UserViewModelFactory(userRepository)
+    )
+
     ModalNavigationDrawer(
         drawerContent = {
             MainNavigationDrawer(
@@ -143,7 +153,9 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
                                 drawerState.open()
                             }
                         },
+                        userViewModel = userViewModel,
                         cardViewModel = cardViewModel,
+                        operationViewModel = operationViewModel,
                         userId = userId
                     )
                 }
@@ -182,8 +194,10 @@ fun MainAppNavigator(viewModel: UserViewModel, parentNavController: NavControlle
 
 @Composable
 fun HomeScreen(
-    onMenuClicked : () -> Unit,
+    onMenuClicked: () -> Unit,
     cardViewModel: CardViewModel,
+    userViewModel: UserViewModel,
+    operationViewModel: OperationViewModel,
     userId: String
 ) {
     val viewModel = viewModel<ExchangeViewModel>(
@@ -192,17 +206,39 @@ fun HomeScreen(
         }
     )
 
-    MaterialTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(SlightlyGrey),
-            verticalArrangement = Arrangement.spacedBy(18.dp)
-        ) {
-            AppBar(viewModel, onMenuClicked = onMenuClicked) {}
-            YourCardSection(cardViewModel, userId)
-            OperationList()
+    val operationsState by operationViewModel.operationState.collectAsState()
+    val quickOperationsState by userViewModel.quickOperations.collectAsState()
+    val selectedOperationsState by operationViewModel.selectedOperations.collectAsState()
+
+    LaunchedEffect(userId) {
+        userViewModel.loadQuickOperations(userId)
+    }
+
+    LaunchedEffect(quickOperationsState) {
+        if (quickOperationsState is Resource.Success) {
+            val operationIds = (quickOperationsState as Resource.Success).data ?: emptyList()
+            operationViewModel.getOperationsByIds(operationIds)
         }
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SlightlyGrey),
+        verticalArrangement = Arrangement.spacedBy(18.dp)
+    ) {
+        AppBar(viewModel, onMenuClicked = onMenuClicked)
+        YourCardSection(cardViewModel, userId)
+        OperationComponent(
+            quickOperationsState = quickOperationsState,
+            operationsState = operationsState,
+            selectedOperationsState = selectedOperationsState,
+            onSelectedOperationsChange = { newSelectedOperations ->
+                val newSelectedIds = newSelectedOperations.map { it.operationId }
+                operationViewModel.getOperationsByIds(newSelectedIds)
+            },
+            onSaveClick = {}
+        )
     }
 }
 

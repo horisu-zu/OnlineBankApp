@@ -11,4 +11,5 @@ interface OperationRepository {
     suspend fun getOperations(): Flow<Resource<List<OperationData>>>
     suspend fun getOperationsByType(typeId: String): Flow<Resource<List<OperationData>>>
     suspend fun getOperationTypes(): Flow<Resource<List<OperationType>>>
+    suspend fun getDefaultOperations(): List<String>
 }

@@ -8,5 +8,6 @@ data class UserData(
     val userName: String = "",
     val phoneNumber: String? = null,
     val createdAt: Date = Date(),
-    val signedIn: Date = Date()
+    val signedIn: Date = Date(),
+    val quickOperations: List<String> = listOf()
 )

@@ -2,6 +2,7 @@ package com.example.onlinebankapp.domain.presentation.viewmodel.user
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.onlinebankapp.domain.repository.UserRepository
 import com.example.onlinebankapp.domain.user.UserData
@@ -25,6 +26,9 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
 
     private val _userState = MutableStateFlow<Resource<UserData>>(Resource.Loading())
     val userState: StateFlow<Resource<UserData>> = _userState.asStateFlow()
+
+    private val _quickOperations = MutableStateFlow<Resource<List<String>>>(Resource.Loading())
+    val quickOperations: StateFlow<Resource<List<String>>> = _quickOperations.asStateFlow()
 
     fun authenticateUser(email: String, password: String, username: String = "Username",
                          isRegistration: Boolean = false) {
@@ -154,6 +158,14 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
                 _userState.value = Resource.Loading()
             } catch (e: Exception) {
                 _authState.value = Resource.Error(e.message ?: "Logout failed")
+            }
+        }
+    }
+
+    fun loadQuickOperations(userId: String) {
+        viewModelScope.launch {
+            repository.getQuickOperations(userId).collect { result ->
+                _quickOperations.value = result
             }
         }
     }

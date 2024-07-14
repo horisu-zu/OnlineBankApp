@@ -6,6 +6,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.onlinebankapp.data.repository.OperationRepositoryImpl
 import com.example.onlinebankapp.data.repository.UserRepositoryImpl
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModel
 import com.example.onlinebankapp.domain.presentation.viewmodel.user.UserViewModelFactory
@@ -15,7 +16,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 fun AuthNavigator(parentNavController: NavController) {
     val navController = rememberNavController()
     val fireStore = FirebaseFirestore.getInstance()
-    val userRepository = UserRepositoryImpl(fireStore)
+    val operationRepository = OperationRepositoryImpl(fireStore)
+    val userRepository = UserRepositoryImpl(fireStore, operationRepository)
     val userViewModel: UserViewModel = viewModel(
         factory = UserViewModelFactory(userRepository)
     )

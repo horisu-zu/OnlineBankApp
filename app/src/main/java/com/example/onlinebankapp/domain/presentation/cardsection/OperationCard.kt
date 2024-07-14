@@ -1,5 +1,6 @@
 package com.example.onlinebankapp.domain.presentation.cardsection
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,9 +14,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,38 +34,59 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.onlinebankapp.OperationActivity
 import com.example.onlinebankapp.R
 import com.example.onlinebankapp.domain.operation.OperationCardData
+import com.example.onlinebankapp.domain.operation.OperationData
+import com.example.onlinebankapp.domain.presentation.OperationBottomSheet
+import com.example.onlinebankapp.domain.presentation.history.getSoftColor
 
 @Composable
 fun OperationList(
-    operations: List<OperationCardData> = getOperationTypeData()
+    operations: List<OperationData>,
+    selectedOperations: List<OperationData>,
+    onSelectedOperationsChange: (List<OperationData>) -> Unit,
+    onSaveClick: () -> Unit
 ) {
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(4),
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .fillMaxWidth()
     ) {
-        items(operations) { operation ->
+        items(selectedOperations) { operation ->
             OperationType(operationCardData = operation)
         }
         item {
-            AddCard(onClick = {})
+            AddCard(onClick = { showBottomSheet = true })
         }
     }
+
+    OperationBottomSheet(
+        operationsList = operations,
+        initialSelectedOperations = selectedOperations,
+        showBottomSheet = showBottomSheet,
+        onDismissRequest = { showBottomSheet = false },
+        onSelectedOperationsChange = onSelectedOperationsChange,
+        onSaveClick = onSaveClick
+    )
 }
 
 @Composable
 fun OperationType(
-    operationCardData: OperationCardData,
+    operationCardData: OperationData,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+
     Column(
         verticalArrangement = Arrangement.spacedBy((-8).dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -67,10 +94,15 @@ fun OperationType(
     ) {
         OperationCard(
             operationCardData = operationCardData,
-            onClick = {}
+            onClick = {
+                val intent = Intent(context, OperationActivity::class.java).apply {
+                    putExtra("operationDataId", operationCardData.operationId)
+                }
+                context.startActivity(intent)
+            }
         )
         Text(
-            text = operationCardData.operationName,
+            text = operationCardData.title,
             color = Color.Black,
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
@@ -81,33 +113,29 @@ fun OperationType(
 
 @Composable
 fun OperationCard(
-    operationCardData: OperationCardData,
+    operationCardData: OperationData,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val gradient = Brush.linearGradient(
-        colors = listOf(operationCardData.operationColor, Color.White),
-        start = Offset(0f, 0f),
-        end = Offset(275f, 275f)
-    )
-
     Card(
         modifier = modifier
             .padding(12.dp)
-            .shadow(8.dp, CircleShape, clip = true)
+            .shadow(8.dp, CircleShape)
             .clip(CircleShape)
-            .clickable(onClick = onClick)
     ) {
         Box(
             modifier = Modifier
                 .size(60.dp)
-                .background(brush = gradient),
+                .clickable(onClick = onClick)
+                //Doesn't working how it's supposed to, but let it be as it is...
+                .background(getSoftColor(operationCardData.iconColor, alpha = 0.25f)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = painterResource(id = operationCardData.operationIcon),
-                contentDescription = operationCardData.operationName,
-                tint = getTint(operationCardData.operationColor)
+                painter = painterResource(id = operationCardData.icon),
+                contentDescription = operationCardData.title,
+                tint = operationCardData.iconColor,
+                modifier = Modifier.size(42.dp)
             )
         }
     }
