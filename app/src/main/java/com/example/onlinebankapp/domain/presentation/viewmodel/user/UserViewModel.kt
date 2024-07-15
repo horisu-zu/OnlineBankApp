@@ -169,4 +169,27 @@ class UserViewModel(private val repository: UserRepository) : ViewModel() {
             }
         }
     }
+
+    fun updateQuickOperations(userId: String, quickOperations: List<String>) {
+        viewModelScope.launch {
+            try {
+                repository.updateQuickOperations(userId, quickOperations).collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            Log.d("UserViewModel", "Updating quick operations...")
+                        }
+                        is Resource.Success -> {
+                            Log.d("UserViewModel", "Quick operations updated successfully")
+                        }
+                        is Resource.Error -> {
+                            Log.e("UserViewModel",
+                                "Failed to update quick operations: ${result.message}")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("UserViewModel", "Exception while updating quick operations: ", e)
+            }
+        }
+    }
 }

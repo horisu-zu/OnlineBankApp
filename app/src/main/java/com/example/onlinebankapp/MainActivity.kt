@@ -231,13 +231,17 @@ fun HomeScreen(
         YourCardSection(cardViewModel, userId)
         OperationComponent(
             quickOperationsState = quickOperationsState,
-            operationsState = operationsState,
+            operations = operationsState,
             selectedOperationsState = selectedOperationsState,
             onSelectedOperationsChange = { newSelectedOperations ->
                 val newSelectedIds = newSelectedOperations.map { it.operationId }
                 operationViewModel.getOperationsByIds(newSelectedIds)
             },
-            onSaveClick = {}
+            onSaveClick = { selectedIds ->
+                Log.d("Selected IDs", selectedIds.size.toString())
+                Log.d("Selected IDs", selectedIds.toString())
+                userViewModel.updateQuickOperations(userId, selectedIds)
+            }
         )
     }
 }

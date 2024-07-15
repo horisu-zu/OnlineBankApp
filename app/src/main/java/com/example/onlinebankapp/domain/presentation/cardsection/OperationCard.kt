@@ -52,7 +52,7 @@ fun OperationList(
     operations: List<OperationData>,
     selectedOperations: List<OperationData>,
     onSelectedOperationsChange: (List<OperationData>) -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: (List<String>) -> Unit
 ) {
     var showBottomSheet by remember { mutableStateOf(false) }
 
@@ -76,7 +76,10 @@ fun OperationList(
         showBottomSheet = showBottomSheet,
         onDismissRequest = { showBottomSheet = false },
         onSelectedOperationsChange = onSelectedOperationsChange,
-        onSaveClick = onSaveClick
+        onSaveClick = { selectedIds ->
+            onSaveClick(selectedIds)
+            showBottomSheet = false
+        }
     )
 }
 

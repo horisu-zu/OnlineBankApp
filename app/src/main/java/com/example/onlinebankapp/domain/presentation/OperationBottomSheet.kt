@@ -46,15 +46,14 @@ fun OperationBottomSheet(
     showBottomSheet: Boolean,
     onDismissRequest: () -> Unit,
     onSelectedOperationsChange: (List<OperationData>) -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: (List<String>) -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
     var selectedOperations by remember(showBottomSheet) {
         mutableStateOf(initialSelectedOperations)
     }
-
-    Log.d("Selected Bottom Sheet Operations", selectedOperations.size.toString())
+    val maxOperations = 10
 
     if(showBottomSheet) {
         ModalBottomSheet(
@@ -64,22 +63,25 @@ fun OperationBottomSheet(
             sheetState = sheetState,
             containerColor = SlightlyGrey
         ) {
+            SheetHeader(currentOperationsCount = selectedOperations.size, maxCount = maxOperations)
             OperationsList(
                 operationsList = operationsList,
                 selectedOperations = selectedOperations,
                 onOperationToggle = { operation, checked ->
-                    selectedOperations = if (checked) {
-                        selectedOperations + operation
-                    } else {
-                        selectedOperations - operation
+                    if (checked && selectedOperations.size < maxOperations) {
+                        selectedOperations = selectedOperations + operation
+                    } else if (!checked) {
+                        selectedOperations = selectedOperations - operation
                     }
-                }
+                },
+                maxOperations = maxOperations
             )
             OperationButton(
                 label = "Save Changes",
                 onClick = {
                     onSelectedOperationsChange(selectedOperations)
-                    onSaveClick()
+                    val selectedIds = selectedOperations.map { it.operationId }
+                    onSaveClick(selectedIds)
                 },
                 enabled = listsComparison(initialSelectedOperations, selectedOperations),
                 modifier = Modifier
@@ -101,10 +103,38 @@ private fun listsComparison(list1: List<OperationData>, list2: List<OperationDat
 }
 
 @Composable
+private fun SheetHeader(
+    currentOperationsCount: Int,
+    maxCount: Int
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Max Quick Operations Count: ",
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            color = Color.DarkGray
+        ) 
+        Text(
+            text = "$currentOperationsCount/$maxCount",
+            fontWeight = FontWeight.Medium,
+            fontSize = 16.sp,
+            color = Color.DarkGray
+        )
+    }
+}
+
+@Composable
 fun OperationsList(
     operationsList: List<OperationData>,
     selectedOperations: List<OperationData>,
-    onOperationToggle: (OperationData, Boolean) -> Unit
+    onOperationToggle: (OperationData, Boolean) -> Unit,
+    maxOperations: Int
 ) {
     LazyColumn(
         modifier = Modifier
@@ -119,10 +149,11 @@ fun OperationsList(
                 operationData = operation,
                 isChecked = isChecked,
                 position = if (position != -1) position else null,
-                maxCount = selectedOperations.size,
+                maxCount = maxOperations,
                 onCheckedChange = { checked ->
                     onOperationToggle(operation, checked)
-                }
+                },
+                isCheckboxEnabled = isChecked || selectedOperations.size < maxOperations
             )
         }
     }
@@ -134,7 +165,8 @@ private fun OperationItem(
     isChecked: Boolean,
     position: Int?,
     maxCount: Int,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    isCheckboxEnabled: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -175,10 +207,12 @@ private fun OperationItem(
         Checkbox(
             checked = isChecked,
             onCheckedChange = onCheckedChange,
+            enabled = isCheckboxEnabled,
             colors = CheckboxDefaults.colors(
                 checkedColor = Color(0xFF33691E),
                 uncheckedColor = Color.Gray,
-                checkmarkColor = Color.White
+                checkmarkColor = Color.White,
+                disabledCheckedColor = Color.LightGray
             )
         )
     }

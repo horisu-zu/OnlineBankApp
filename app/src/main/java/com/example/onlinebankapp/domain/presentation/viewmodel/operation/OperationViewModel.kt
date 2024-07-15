@@ -12,16 +12,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class OperationViewModel(private val operationRepository: OperationRepository): ViewModel() {
-    val _operationState = MutableStateFlow<Resource<List<OperationData>>>(Resource.Loading())
+    private val _operationState = MutableStateFlow<Resource<List<OperationData>>>(Resource.Loading())
     val operationState: StateFlow<Resource<List<OperationData>>> = _operationState.asStateFlow()
 
-    val _typeState = MutableStateFlow<Resource<List<OperationType>>>(Resource.Loading())
+    private val _typeState = MutableStateFlow<Resource<List<OperationType>>>(Resource.Loading())
     val typeState: StateFlow<Resource<List<OperationType>>> = _typeState.asStateFlow()
 
     private val _selectedOperations = MutableStateFlow<Resource<List<OperationData>>>(Resource.Loading())

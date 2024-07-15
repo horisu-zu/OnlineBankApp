@@ -93,4 +93,30 @@ class UserRepositoryImpl(
             emit(Resource.Error(e.message ?: "Unknown error"))
         }
     }
+
+    override suspend fun updateQuickOperations(
+        userId: String,
+        quickOperations: List<String>
+    ): Flow<Resource<Void?>> = flow {
+        emit(Resource.Loading())
+
+        if (quickOperations.isEmpty()) {
+            emit(Resource.Error("Quick operations list is empty"))
+            return@flow
+        }
+
+        val documentRef = firestore.collection("users").document(userId)
+
+        try {
+            val documentSnapshot = documentRef.get().await()
+            if (documentSnapshot.exists()) {
+                documentRef.update("quickOperations", quickOperations).await()
+                emit(Resource.Success(null))
+            } else {
+                emit(Resource.Error("Document does not exist for userId: $userId"))
+            }
+        } catch (e: Exception) {
+            emit(Resource.Error(e.message ?: "Unknown error"))
+        }
+    }
 }

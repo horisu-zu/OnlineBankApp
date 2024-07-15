@@ -13,30 +13,29 @@ import com.example.onlinebankapp.domain.util.Resource
 @Composable
 fun OperationComponent(
     quickOperationsState: Resource<List<String>>,
-    operationsState: Resource<List<OperationData>>,
+    operations: Resource<List<OperationData>>,
     selectedOperationsState: Resource<List<OperationData>>,
     onSelectedOperationsChange: (List<OperationData>) -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: (List<String>) -> Unit
 ) {
     when {
-        quickOperationsState is Resource.Loading || operationsState is Resource.Loading ||
-                selectedOperationsState is Resource.Loading -> {}
+        quickOperationsState is Resource.Loading || selectedOperationsState is Resource.Loading
+                || operations is Resource.Loading -> {}
+        operations is Resource.Error -> {
+            ErrorMessage("Error loading quick operations: ${operations.message}")
+        }
         quickOperationsState is Resource.Error -> {
             ErrorMessage("Error loading quick operations: ${quickOperationsState.message}")
-        }
-        operationsState is Resource.Error -> {
-            ErrorMessage("Error loading operations: ${operationsState.message}")
         }
         selectedOperationsState is Resource.Error -> {
             ErrorMessage("Error loading selected operations: ${selectedOperationsState.message}")
         }
-        quickOperationsState is Resource.Success &&
-                operationsState is Resource.Success &&
-                selectedOperationsState is Resource.Success -> {
+        quickOperationsState is Resource.Success && selectedOperationsState is Resource.Success
+                && operations is Resource.Success -> {
             val selectedOperations = selectedOperationsState.data ?: emptyList()
             Log.d("Selected Operations", "Size: ${selectedOperations.size}")
             OperationList(
-                operations = operationsState.data ?: emptyList(),
+                operations = operations.data ?: emptyList(),
                 selectedOperations = selectedOperations,
                 onSelectedOperationsChange = onSelectedOperationsChange,
                 onSaveClick = onSaveClick
